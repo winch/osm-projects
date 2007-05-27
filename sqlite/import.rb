@@ -1,4 +1,4 @@
-#!/usr/bin/ruby -w
+#!/usr/bin/ruby
 
 #imports planet file into sqlite db
 
@@ -20,9 +20,11 @@ end
 db = SQLite3::Database.new(ARGV[1])
 create_tables(db)
 
-listner = Listener.new
+db.execute("BEGIN")
+listner = Listener.new(db)
 osm = File.new ARGV[0]
 REXML::Document.parse_stream(osm, listner)
+db.execute("COMMIT")
 
 osm.close
 db.close

@@ -2,11 +2,6 @@
 
 #imports planet file into sqlite db
 
-#schema
-
-#node
-# id, lat, lon, user
-
 require 'rexml/document'
 require 'sqlite3'
 require 'osm/sqlite/database.rb'

@@ -20,7 +20,7 @@ osm_node = Hash.new
 osm_segment = Hash.new
 osm_way = Hash.new
 
-db.execute("select id from way_tag where v='Oxford Canal'") do |way|
+db.execute("select id from way_tag where v = 'footway' or v = 'cycleway'") do |way|
     way = way[0]
     if osm_way[way].nil?
         #add way to osm_way

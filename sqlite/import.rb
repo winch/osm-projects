@@ -13,13 +13,19 @@ if ARGV.length != 2
 end
 
 db = SQLite3::Database.new(ARGV[1])
+puts 'creating tables'
 create_tables(db)
 
 db.execute("BEGIN")
 listner = Listener.new(db)
 osm = File.new ARGV[0]
+puts 'importing'
 REXML::Document.parse_stream(osm, listner)
+puts 'indexing'
+create_index(db)
 db.execute("COMMIT")
 
 osm.close
 db.close
+
+puts 'import finished'

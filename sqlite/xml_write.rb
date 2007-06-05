@@ -44,6 +44,7 @@ module Xml
             write_tag(output, tag)
         end
         output.write("  </way>\n")
+        
     end
 
 end

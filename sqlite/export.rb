@@ -24,10 +24,10 @@ way_count = 0
 segment_count = 0
 node_count = 0
 
-#Find.find_way_where(db, osm_way, "v = 'Windmill Avenue'")
-#Find.find_segment(db, osm_way, osm_segment)
-#Find.find_node(db, osm_segment, osm_node)
-Find.find_node_where(db, osm_node, "v = 'post_box'")
+Find.find_way_where(db, osm_way, "k != 'note' and v != 'unclassified' and v like 'uncl%'")
+Find.find_segment(db, osm_way, osm_segment)
+Find.find_node(db, osm_segment, osm_node)
+#Find.find_node_where(db, osm_node, "k like 'A%'")
 
 #write osm data
 

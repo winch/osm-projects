@@ -13,7 +13,7 @@ module Database
         db.execute('CREATE TABLE way_tag(id NUMERIC, k TEXT, v TEXT)')
     end
     
-#     def Database.create_index(db)
+     def Database.create_index(db)
         #node
         db.execute('CREATE INDEX node_index on node(id)')
         db.execute('CREATE INDEX node_tag_index on node_tag(id)')

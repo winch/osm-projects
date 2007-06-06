@@ -21,7 +21,7 @@ module Find
         end
     end
     
-    def Find.find_segment(db, osm_way, osm_segment)
+    def Find.find_segment_from_way(db, osm_way, osm_segment)
         #find all segments in osm_way
         osm_way.each_value do |way|
             way.segments.each do |segment|
@@ -42,7 +42,7 @@ module Find
         end
     end
     
-    def Find.find_node(db, osm_segment, osm_node)
+    def Find.find_node_from_segment(db, osm_segment, osm_node)
         #find all nodes in osm_segment
         osm_segment.each_value do |segment|
             db.execute("select id, lat, lon from node where id = ? or id = ?", segment.node_a, segment.node_b) do |node|

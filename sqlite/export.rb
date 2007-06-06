@@ -7,50 +7,43 @@ require 'osm/sqlite/primative.rb'
 require 'osm/sqlite/xml_write.rb'
 require 'osm/sqlite/find.rb'
 
+$VERSION = '0.1'
+
 if ARGV.length != 2
     puts 'export.rb database.db output.osm'
     exit
 end
 
 db = SQLite3::Database.new(ARGV[0])
-output = File.open(ARGV[1], "w")
-output.write('<?xml version="1.0" encoding="UTF-8"?>' + "\n")
-output.write('<osm version="0.4" generator="export.rb">' + "\n")
+output = Xml_writer.new(ARGV[1])
 
 osm_node = Hash.new
 osm_segment = Hash.new
 osm_way = Hash.new
-way_count = 0
-segment_count = 0
-node_count = 0
 
-Find.find_way_where(db, osm_way, "k != 'note' and v != 'unclassified' and v like 'uncl%'")
-Find.find_segment(db, osm_way, osm_segment)
-Find.find_node(db, osm_segment, osm_node)
+Find.find_way_where(db, osm_way, "v = 'Windmill Avenue'")
+Find.find_segment_from_way(db, osm_way, osm_segment)
+Find.find_node_from_segment(db, osm_segment, osm_node)
 #Find.find_node_where(db, osm_node, "k like 'A%'")
 
 #write osm data
 
 #node
 osm_node.each do |id, node|
-    Xml.write_node(output, id, node)
-    node_count += 1
+    output.write_node(id, node)
 end
 
 #segment
 osm_segment.each do |id, segment|
-    Xml.write_segment(output, id, segment)
-    segment_count += 1
+    output.write_segment(id, segment)
 end
 
 #way
 osm_way.each do |id, way|
-    Xml.write_way(output, id, way)
-    way_count += 1
+    output.write_way(id, way)
 end
 
-puts "exported #{node_count} nodes, #{segment_count} segments and #{way_count} way(s)"
+puts "exported #{osm_node.length} nodes, #{osm_segment.length} segments and #{osm_way.length} way(s)"
 
-output.write("</osm>\n")
-output.close
+output.close()
 db.close

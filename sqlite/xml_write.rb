@@ -1,3 +1,4 @@
+require 'cgi'
 
 class Xml_writer
 
@@ -13,7 +14,7 @@ class Xml_writer
     end
 
     def write_tag(tag)
-        @output.write("    <tag k=\"#{tag[0]}\" v=\"#{tag[1]}\"/>\n")
+        @output.write("    <tag k=\"#{tag[0]}\" v=\"#{CGI.escape(tag[1])}\"/>\n") if !tag[1].nil?
     end
 
     def write_node(id, node)

@@ -14,7 +14,22 @@ class Xml_writer
     end
 
     def write_tag(tag)
-        @output.write("    <tag k=\"#{tag[0]}\" v=\"#{CGI.escape(tag[1])}\"/>\n") if !tag[1].nil?
+        @output.write("    <tag k=\"#{tag[0]}\" v=\"#{CGI.escapeHTML(tag[1])}\"/>\n") if !tag[1].nil?
+    end
+
+    def write(osm_way, osm_segment, osm_node)
+        #node
+        osm_node.each do |id, node|
+            self.write_node(id, node)
+        end
+        #segment
+        osm_segment.each do |id, segment|
+            self.write_segment(id, segment)
+        end
+        #way
+        osm_way.each do |id, way|
+            self.write_way(id, way)
+        end
     end
 
     def write_node(id, node)

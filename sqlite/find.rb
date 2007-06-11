@@ -20,7 +20,27 @@ module Find
             end
         end
     end
-    
+
+    def Find.find_segment_where(db, osm_segment, where_clause)
+        #find all segments matching where_clause
+        db.execute("select id from segment_tag where " + where_clause) do |segment|
+            segment = segment[0]
+            if osm_segment[segment].nil?
+                #add segment to osm_segment
+                osm_segment[segment] = Segment.new
+                #find segment attributes
+                db.execute("select node_a, node_b from segment where id = ?", segment) do |segment_attr|
+                    osm_segment[segment].node_a = segment_attr[0]
+                    osm_segment[segment].node_b = segment_attr[1]
+                end
+                #add tags
+                db.execute("select k, v from segment_tag where id = ?", segment) do |tag|
+                    osm_segment[segment].tags.push(tag)
+                end
+            end
+        end
+    end
+
     def Find.find_segment_from_way(db, osm_way, osm_segment)
         #find all segments in osm_way
         osm_way.each_value do |way|
@@ -41,25 +61,7 @@ module Find
             end
         end
     end
-    
-    def Find.find_node_from_segment(db, osm_segment, osm_node)
-        #find all nodes in osm_segment
-        osm_segment.each_value do |segment|
-            db.execute("select id, lat, lon from node where id = ? or id = ?", segment.node_a, segment.node_b) do |node|
-                if osm_node[node[0]].nil?
-                    item = Node.new
-                    item.lat = node[1]
-                    item.lon = node[2]
-                    osm_node[node[0]] = item
-                    #add tags
-                    db.execute("select k, v from node_tag where id = ?", node[0]) do |tag|
-                        osm_node[node[0]].tags.push(tag)
-                    end
-                end
-            end
-        end
-    end
-    
+
     def Find.find_node_where(db, osm_node, where_clause)
         #find all nodes matching where_clause
         db.execute("select id from node_tag where " + where_clause) do |node|
@@ -73,6 +75,24 @@ module Find
                 #add tags
                 db.execute("select k, v from node_tag where id = ?", node[0]) do |tag|
                     osm_node[node[0]].tags.push(tag)
+                end
+            end
+        end
+    end
+
+    def Find.find_node_from_segment(db, osm_segment, osm_node)
+        #find all nodes in osm_segment
+        osm_segment.each_value do |segment|
+            db.execute("select id, lat, lon from node where id = ? or id = ?", segment.node_a, segment.node_b) do |node|
+                if osm_node[node[0]].nil?
+                    item = Node.new
+                    item.lat = node[1]
+                    item.lon = node[2]
+                    osm_node[node[0]] = item
+                    #add tags
+                    db.execute("select k, v from node_tag where id = ?", node[0]) do |tag|
+                        osm_node[node[0]].tags.push(tag)
+                    end
                 end
             end
         end

@@ -9,6 +9,8 @@ require 'osm/sqlite/xml.rb'
 
 if ARGV.length != 2
     puts 'import.rb planet.osm database.db'
+    puts 'To read planet.osm from stdin,'
+    puts 'import.rb - database.db'
     exit
 end
 
@@ -18,7 +20,11 @@ Database.create_tables(db)
 
 db.execute("BEGIN")
 listner = Listener.new(db)
-osm = File.new ARGV[0]
+if (ARGV[0] == '-')
+    osm = STDIN
+else
+    osm = File.new ARGV[0]
+end
 puts 'importing'
 REXML::Document.parse_stream(osm, listner)
 puts 'indexing'

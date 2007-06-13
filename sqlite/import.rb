@@ -27,6 +27,7 @@ else
 end
 puts 'importing'
 REXML::Document.parse_stream(osm, listner)
+listner.close
 puts 'indexing'
 Database.create_index(db)
 db.execute("COMMIT")

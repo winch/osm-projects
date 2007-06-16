@@ -1,25 +1,38 @@
 
-class Node
-    attr_accessor :tags, :lat, :lon
+class Osm
+    attr_accessor :node, :segment, :way
+
+    def initialize()
+        @node = Hash.new
+        @segment = Hash.new
+        @way = Hash.new
+    end
+end
+
+class Primative
+    attr_accessor :tags
 
     def initialize()
         @tags = Array.new
     end
 end
 
-class Segment
-    attr_accessor :tags, :node_a, :node_b
-
-    def initialize()
-        @tags = Array.new
-    end
+class Node < Primative
+    #node primative
+    attr_accessor :lat, :lon
 end
 
-class Way
-    attr_accessor :segments, :tags
+class Segment < Primative
+    #segment primative
+    attr_accessor :node_a, :node_b
+end
+
+class Way < Primative
+    #way primative
+    attr_accessor :segments
 
     def initialize()
+        super
         @segments = Array.new
-        @tags = Array.new
     end
 end

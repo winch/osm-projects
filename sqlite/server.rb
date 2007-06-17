@@ -1,5 +1,7 @@
 #!/usr/bin/ruby
 
+# $Id$
+
 #responds to api requests, currently only bbox requests
 
 require 'sqlite3'

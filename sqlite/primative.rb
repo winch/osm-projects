@@ -1,4 +1,6 @@
 
+# $Id$
+
 class Osm
     attr_accessor :node, :segment, :way
 

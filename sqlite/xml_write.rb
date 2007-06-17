@@ -1,3 +1,6 @@
+
+# $Id$
+
 require 'cgi'
 
 class Xml_writer

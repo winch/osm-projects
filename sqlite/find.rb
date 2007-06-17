@@ -1,4 +1,6 @@
 
+# $Id$
+
 module Find
 
     def Find.find_way_where(db, osm, where_clause)

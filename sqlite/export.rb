@@ -1,11 +1,13 @@
 #!/usr/bin/ruby
 
+# $Id$
+
 #exports from db to osm xml
 
 require 'sqlite3'
-require 'osm/sqlite/primative.rb'
-require 'osm/sqlite/xml_write.rb'
-require 'osm/sqlite/find.rb'
+require File.dirname(__FILE__) + '/primative.rb'
+require File.dirname(__FILE__) + '/xml_write.rb'
+require File.dirname(__FILE__) + '/find.rb'
 
 $VERSION = '0.1'
 

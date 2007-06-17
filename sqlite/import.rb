@@ -1,11 +1,13 @@
 #!/usr/bin/ruby
 
+# $Id$
+
 #imports planet file into sqlite db
 
 require 'rexml/document'
 require 'sqlite3'
-require 'osm/sqlite/database.rb'
-require 'osm/sqlite/xml.rb'
+require File.dirname(__FILE__) + '/database.rb'
+require File.dirname(__FILE__) + '/xml.rb'
 
 if ARGV.length != 2
     puts 'import.rb planet.osm database.db'

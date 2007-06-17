@@ -1,4 +1,6 @@
 
+# $Id$
+
 module Database
 
     def Database.create_tables(db)

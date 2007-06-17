@@ -8,7 +8,7 @@ require 'sqlite3'
 require File.dirname(__FILE__) + '/database.rb'
 require File.dirname(__FILE__) + '/primative.rb'
 require File.dirname(__FILE__) + '/xml_write.rb'
-require File.dirname(__FILE__) + '/find.rb'
+require File.dirname(__FILE__) + '/osm.rb'
 
 $VERSION = '0.1'
 

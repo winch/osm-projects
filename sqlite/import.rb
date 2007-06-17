@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 
 # $Id$
 
@@ -16,23 +16,24 @@ if ARGV.length != 2
     exit
 end
 
-db = SQLite3::Database.new(ARGV[1])
+db = Database.new(ARGV[1])
 puts 'creating tables'
-Database.create_tables(db)
+db.create_tables()
+db.prepare_import_statments()
 
-db.execute("BEGIN")
+db.db.execute("BEGIN")
 listner = Listener.new(db)
 if (ARGV[0] == '-')
     osm = STDIN
 else
     osm = File.new ARGV[0]
 end
+
 puts 'importing'
 REXML::Document.parse_stream(osm, listner)
-listner.close
 puts 'indexing'
-Database.create_index(db)
-db.execute("COMMIT")
+db.create_index()
+db.db.execute("COMMIT")
 
 osm.close
 db.close

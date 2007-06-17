@@ -1,16 +1,6 @@
 
 # $Id$
 
-class Osm
-    attr_accessor :node, :segment, :way
-
-    def initialize()
-        @node = Hash.new
-        @segment = Hash.new
-        @way = Hash.new
-    end
-end
-
 class Primative
     attr_accessor :tags
 

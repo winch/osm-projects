@@ -1,10 +1,11 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 
 # $Id$
 
 #exports from db to osm xml
 
 require 'sqlite3'
+require File.dirname(__FILE__) + '/database.rb'
 require File.dirname(__FILE__) + '/primative.rb'
 require File.dirname(__FILE__) + '/xml_write.rb'
 require File.dirname(__FILE__) + '/find.rb'
@@ -16,15 +17,15 @@ if ARGV.length != 2
     exit
 end
 
-db = SQLite3::Database.new(ARGV[0])
+db = Database.new(ARGV[0])
 output = Xml_writer.new(ARGV[1])
 
 osm = Osm.new
 
-Find.find_way_where(db, osm, "k = 'name' and v = 'Windmill Avenue'")
-Find.find_segment_from_way(db, osm)
-#Find.find_segment_where(db, osm, "1=1")
-Find.find_node_from_segment(db, osm)
+osm.find_way_where(db.db, "k = 'name' and v = 'Windmill Avenue'")
+osm.find_segment_from_way(db.db)
+#osm.find_segment_where(db, osm, "1=1")
+osm.find_node_from_segment(db.db)
 #Find.find_node_where(db, osm, "k like 'A%'")
 
 #write osm data

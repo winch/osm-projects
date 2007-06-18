@@ -18,15 +18,15 @@ if ARGV.length != 2
 end
 
 db = Database.new(ARGV[0])
+db.prepare_export_statments
 output = Xml_writer.new(ARGV[1])
 
-osm = Osm.new
+osm = Osm.new(db)
 
-osm.find_way_where(db.db, "k = 'name' and v = 'Windmill Avenue'")
-osm.find_segment_from_way(db.db)
-#osm.find_segment_where(db, osm, "1=1")
-osm.find_node_from_segment(db.db)
-#Find.find_node_where(db, osm, "k like 'A%'")
+osm.find_way_where("k = 'name' and v = 'Windmill Avenue'")
+osm.find_segment_from_way
+osm.find_node_from_segment
+osm.find_node_where("v = 'post_box'")
 
 #write osm data
 

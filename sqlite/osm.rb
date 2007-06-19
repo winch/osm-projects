@@ -11,28 +11,36 @@ class Osm
         @db = db
     end
 
-    def find_way_where(where_clause)
-        #find all ways matching where_clause
-        @db.db.execute("select id from way_tag where " + where_clause) do |way|
-            way = way[0]
-            if @way[way].nil?
-                #add way to @way
-                item = Way.new
-                #add tags
-                @db.export_way_tag.execute(way) do |result|
-                    result.each { |tag| item.tags.push(tag) }
-                end
-                @way[way] = item
+    def process_way(way)
+        way = way[0]
+        if @way[way].nil?
+            #add way to @way
+            item = Way.new
+            #add tags
+            @db.export_way_tag.execute(way) do |result|
+                result.each { |tag| item.tags.push(tag) }
             end
             #find way segments
             @db.export_way_segment.execute(way) do |result|
-                result.each { |segment| @way[way].segments.push(segment[0]) }
+                result.each { |segment| item.segments.push(segment[0]) }
             end
+            @way[way] = item
+        end
+    end 
+
+    def find_way_where(where_clause)
+        #find all ways matching where_clause
+        @db.db.execute("select id from way_tag where " + where_clause) do |way|
+            process_way(way)
         end
     end
 
     def find_way_from_segment
         #find all ways containg @segment
+        s = @segment.keys.join(',')
+        @db.db.execute("select id from way where segment in (#{s})") do |way|
+            process_way(way)
+        end
     end
 
     def get_segment_tag(segment)
@@ -41,7 +49,7 @@ class Osm
         end
     end
 
-    def process_segment(result)
+    def process_segment(segment, result)
         result.each do |nodes|
             #add segment to @segment
             if @segment[segment].nil?
@@ -80,7 +88,7 @@ class Osm
         @way.each_value do |way|
             way.segments.each do |segment|
                 @db.export_segment_node.execute(segment) do |result|
-                    self.process_segment(result)
+                    self.process_segment(segment, result)
                 end
             end
         end

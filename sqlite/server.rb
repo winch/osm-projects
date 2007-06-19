@@ -32,9 +32,17 @@ class MapServlet < HTTPServlet::AbstractServlet
             osm = Osm.new($DB)
             output = StringIO.new
             xml = Xml_writer.new(output)
+            @logger.info('find_node_at | ' + req.query['bbox'])
             osm.find_node_at(bbox)
+            @logger.info('find_segment_from_node')
             osm.find_segment_from_node
+            @logger.info('find_way_from_segment')
             osm.find_way_from_segment
+            @logger.info('find_segment_from_way')
+            osm.find_segment_from_way
+            @logger.info('find_node_from_segment')
+            osm.find_node_from_segment
+            @logger.info("exported #{osm.node.length} nodes, #{osm.segment.length} segments and #{osm.way.length} ways")
             xml.write(osm)
             xml.close
             output.rewind

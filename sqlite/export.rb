@@ -27,8 +27,14 @@ osm = Osm.new(db)
 #osm.find_way_where("k = 'name' and v = 'Oxford Canal'")
 #osm.find_segment_from_way
 #osm.find_node_from_segment
-osm.find_node_at([-1.3292029265489531,51.79098143963174,-1.1006619594647056,52.012704057421765])
+puts 'find_node_at'
+osm.find_node_at([-1.1499991596049273,51.88416634514814,-1.1363962754509815,51.897363397399154])
+puts 'find_segment_from_node'
 osm.find_segment_from_node
+puts 'find_way_from_segment'
+osm.find_way_from_segment
+puts 'find_segment_from_way'
+osm.find_segment_from_way
 
 
 #write osm data

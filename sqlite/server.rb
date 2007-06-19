@@ -6,6 +6,7 @@
 
 require 'sqlite3'
 require 'stringio'
+require 'thread'
 require 'webrick'
 include WEBrick
 require File.dirname(__FILE__) + '/xml_write.rb'
@@ -22,6 +23,22 @@ if ARGV.length != 2
 end
 
 class MapServlet < HTTPServlet::AbstractServlet
+
+    @@instance = nil
+    @@mutex = Mutex.new
+
+    def self.get_instance(config, *options)
+        @@mutex.synchronize do
+            @@instance = @@instance || self.new(config, *options)
+        end
+    end
+
+    def initialize(config, database)
+        super
+        @db = Database.new(database)
+        @db.prepare_export_statments
+    end
+
     def do_GET(req, res)
         if req.query['bbox']
             bbox = req.query['bbox'].split(',')
@@ -29,7 +46,7 @@ class MapServlet < HTTPServlet::AbstractServlet
                 raise HTTPStatus::PreconditionFailed.new("badly formatted attribute: 'bbox'")
             end
             res['Content-Type'] = 'Content-Type: text/xml; charset=utf-8'
-            osm = Osm.new($DB)
+            osm = Osm.new(@db)
             output = StringIO.new
             xml = Xml_writer.new(output)
             @logger.info('find_node_at | ' + req.query['bbox'])
@@ -55,14 +72,11 @@ class MapServlet < HTTPServlet::AbstractServlet
     end
 end
 
-$DB = Database.new(ARGV[1])
-$DB.prepare_export_statments
 server = HTTPServer.new(:Port => ARGV[0].to_i)
-server.mount('/api/' + $API_VERSION + '/map', MapServlet)
+server.mount('/api/' + $API_VERSION + '/map', MapServlet, ARGV[1])
 
 trap ("INT") do
     server.shutdown
-    $DB.close
 end
 
 server.start

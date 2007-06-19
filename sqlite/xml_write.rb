@@ -5,15 +5,14 @@ require 'cgi'
 
 class Xml_writer
 
-    def initialize(filename)
-        @output = File.open(filename, "w")
+    def initialize(stream)
+        @output = stream
         @output.write('<?xml version="1.0" encoding="UTF-8"?>' + "\n")
         @output.write("<osm version=\"0.4\" generator=\"export.rb v#{$VERSION}\">\n")
     end
 
     def close()
         @output.write("</osm>\n")
-        @output.close
     end
 
     def write_tag(tag)

@@ -9,7 +9,7 @@ class Database
     attr_reader :insert_way, :insert_way_tag
     #export preparded statments
     attr_reader :export_way_tag, :export_way_segment, :export_segment_tag, :export_segment_node
-    attr_reader :export_node_tag, :export_node, :export_node_from_segment
+    attr_reader :export_node_tag, :export_node, :export_node_from_segment, :export_node_at
 
     def initialize(file_name)
         @db = SQLite3::Database.new(file_name)
@@ -34,6 +34,8 @@ class Database
         @export_node_tag = @db.prepare("select k, v from node_tag where id = ?")
         @export_node = @db.prepare("select lat, lon from node where id = ?")
         @export_node_from_segment = @db.prepare("select id, lat, lon from node where id = ? or id = ?")
+        @export_node_at =
+            @db.prepare("select id, lat, lon from node where (lon > ? and lon < ?) and (lat > ? and lat < ?)")
     end
 
     def close
@@ -52,6 +54,7 @@ class Database
         @export_node_tag.close if !@export_node_tag.nil?
         @export_node.close if !@export_node.nil?
         @export_node_from_segment.close if !@export_node_from_segment.nil?
+        @export_node_at.close if !@export_node_at.nil?
         @db.close
     end
 

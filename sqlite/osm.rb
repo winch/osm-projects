@@ -31,9 +31,27 @@ class Osm
         end
     end
 
+    def find_way_from_segment
+        #find all ways containg @segment
+    end
+
     def get_segment_tag(segment)
         @db.export_segment_tag.execute(segment) do |result|
             result.each { |tag| @segment[segment].tags.push(tag) }
+        end
+    end
+
+    def process_segment(result)
+        result.each do |nodes|
+            #add segment to @segment
+            if @segment[segment].nil?
+                item = Segment.new
+                item.node_a = nodes[0]
+                item.node_b = nodes[1]
+                @segment[segment] = item
+                #add tags
+                get_segment_tag(segment)
+            end
         end
     end
 
@@ -62,18 +80,29 @@ class Osm
         @way.each_value do |way|
             way.segments.each do |segment|
                 @db.export_segment_node.execute(segment) do |result|
-                    result.each do |nodes|
-                        #add segment to @segment
-                        if @segment[segment].nil?
-                            item = Segment.new
-                            item.node_a = nodes[0]
-                            item.node_b = nodes[1]
-                            @segment[segment] = item
-                            #add tags
-                            get_segment_tag(segment)
-                        end
+                    self.process_segment(result)
+                end
+            end
+        end
+    end
+
+    def find_segment_from_node
+        #find all segments in @node
+        n = @node.keys.join(',')
+        @db.db.execute("select id, node_a, node_b from segment where node_a in (#{n}) or node_b in (#{n})") do |segment|
+            segment = segment[0]
+            if @segment[segment].nil?
+                #add segment to @segment
+                @segment[segment] = Segment.new
+                #find segment attributes
+                @db.export_segment_node.execute(segment) do |result|
+                    result.each do |segment_attr|
+                        @segment[segment].node_a = segment_attr[0]
+                        @segment[segment].node_b = segment_attr[1]
                     end
                 end
+                #add tags
+                get_segment_tag(segment)
             end
         end
     end
@@ -81,6 +110,19 @@ class Osm
     def get_node_tag(node)
         @db.export_node_tag.execute(node[0]) do |result|
             result.each { |tag| @node[node[0]].tags.push(tag) }
+        end
+    end
+
+    def process_node(result)
+        #processes a node result adding nodes to @node
+        result.each do |node|
+            if @node[node[0]].nil?
+                @node[node[0]] = Node.new
+                @node[node[0]].lat = node[1]
+                @node[node[0]].lon = node[2]
+                #add tags
+                get_node_tag(node)
+            end
         end
     end
 
@@ -106,17 +148,15 @@ class Osm
         #find all nodes in @segment
         @segment.each_value do |segment|
             @db.export_node_from_segment.execute(segment.node_a, segment.node_b) do |result|
-                result.each do |node|
-                    if @node[node[0]].nil?
-                        item = Node.new
-                        item.lat = node[1]
-                        item.lon = node[2]
-                        @node[node[0]] = item
-                        #add tags
-                        get_node_tag(node)
-                    end
-                end
+                self.process_node(result)
             end
+        end
+    end
+
+    def find_node_at(bbox)
+        #find all nodes within bounding box
+        @db.export_node_at.execute(bbox[0], bbox[2], bbox[1], bbox[3]) do |result|
+            self.process_node(result)
         end
     end
 

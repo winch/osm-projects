@@ -12,6 +12,8 @@ class Listener
 
     def tag_start(name, attrs)
         case name
+        when 'osm'
+            #ignore osm tag
         when 'node'
             #set current tag
             raise 'tag within tag' if @tag.nil? == false
@@ -50,7 +52,7 @@ class Listener
                 statement.execute(@tag_id, attrs['k'], attrs['v'])
             end
         else
-            puts "Unrecognised tag <#{name}>" if name != 'osm'
+            puts "Unrecognised tag <#{name}>"
         end
     end
 

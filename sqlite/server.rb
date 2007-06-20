@@ -39,6 +39,10 @@ class MapServlet < HTTPServlet::AbstractServlet
         @db.prepare_export_statments
     end
 
+    def close
+        @db.close
+    end
+
     def do_GET(req, res)
         if req.query['bbox']
             bbox = req.query['bbox'].split(',')
@@ -77,6 +81,7 @@ server.mount('/api/' + $API_VERSION + '/map', MapServlet, ARGV[1])
 
 trap ("INT") do
     server.shutdown
+    MapServlet.get_instance('', ARGV[1]).close
 end
 
 server.start

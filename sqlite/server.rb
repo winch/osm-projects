@@ -24,6 +24,7 @@ end
 
 class MapServlet < HTTPServlet::AbstractServlet
 
+    attr_reader :instance
     @@instance = nil
     @@mutex = Mutex.new
 
@@ -81,7 +82,7 @@ server.mount('/api/' + $API_VERSION + '/map', MapServlet, ARGV[1])
 
 trap ("INT") do
     server.shutdown
-    MapServlet.get_instance('', ARGV[1]).close
+    MapServlet.instance.close if !MapServlet.instance.close.nil?
 end
 
 server.start

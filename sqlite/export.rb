@@ -9,6 +9,10 @@ require File.dirname(__FILE__) + '/database.rb'
 require File.dirname(__FILE__) + '/primative.rb'
 require File.dirname(__FILE__) + '/xml_write.rb'
 require File.dirname(__FILE__) + '/osm.rb'
+require File.dirname(__FILE__) + '/config.rb'
+require File.dirname(__FILE__) + '/api.rb'
+require File.dirname(__FILE__) + '/xml_import.rb'
+require File.dirname(__FILE__) + '/xml_reader.rb'
 
 $VERSION = '0.1'
 
@@ -17,25 +21,23 @@ if ARGV.length != 2
     exit
 end
 
+config = Config.load(File.dirname(__FILE__) + '/config.yaml')
+
 db = Database.new(ARGV[0])
 db.prepare_export_statments
+
 file = File.open(ARGV[1], "w")
 output = Xml_writer.new(file)
 
 osm = Osm.new(db)
 
-#osm.find_way_where("k = 'name' and v = 'Oxford Canal'")
-#osm.find_segment_from_way
-#osm.find_node_from_segment
-puts 'find_node_at'
-osm.find_node_at([-1.1499991596049273,51.88416634514814,-1.1363962754509815,51.897363397399154])
-puts 'find_segment_from_node'
-osm.find_segment_from_node
-puts 'find_way_from_segment'
-osm.find_way_from_segment
-puts 'find_segment_from_way'
+osm.find_way_where("k = 'Highway'")
 osm.find_segment_from_way
+osm.find_node_from_segment
 
+#update data from live server
+api = Api.new(osm, config)
+api.refresh_way
 
 #write osm data
 output.write(osm)

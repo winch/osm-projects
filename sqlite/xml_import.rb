@@ -1,66 +1,74 @@
 
 # $Id$
 
-class Listener
+class Xml_import_database
 
-    def initialize(db)
-        @db = db
-        @tag = nil
-        @tag_id = nil
-        @way_position = 0
+    def initialize(database)
+        @db = database
     end
 
-    def tag_start(name, attrs)
-        case name
-        when 'osm'
-            #ignore osm tag
-        when 'node'
-            #set current tag
-            raise 'tag within tag' if @tag.nil? == false
-            @tag = 'node'
-            @tag_id = attrs['id']
-            #add node to db
-            @db.insert_node.execute(attrs['id'], attrs['lat'], attrs['lon'])
-        when 'segment'
-            raise 'tag within tag' if @tag.nil? == false
-            @tag = 'segment'
-            @tag_id = attrs['id']
-            #add segment to db
-            @db.insert_segment.execute(attrs['id'], attrs['from'], attrs['to'])
-        when 'way'
-            raise 'tag within tag' if @tag.nil? == false
-            @tag = 'way'
-            @tag_id = attrs['id']
-            @way_position = 0
-        when 'seg'
-            raise 'seg not in way' if @tag != 'way'
-            #add way segment to db
-            @db.insert_way.execute(@tag_id, attrs['id'], @way_position)
-            @way_position += 1
-        when 'tag'
-            raise 'tag without parent' if @tag.nil?
-            #add tag to db, ignoring created_by tags
-            if attrs['k'] != 'created_by'
-                case @tag
-                when 'node'
-                    statement = @db.insert_node_tag
-                when 'segment'
-                    statement = @db.insert_segment_tag
-                when 'way'
-                    statement = @db.insert_way_tag
-                end
-                statement.execute(@tag_id, attrs['k'], attrs['v'])
-            end
-        else
-            puts "Unrecognised tag <#{name}>"
+    def import_node(id, lat, lon)
+        @db.insert_node.execute(id, lat, lon)
+    end
+
+    def import_node_tag(id, k, v)
+        @db.insert_node_tag.execute(id, k, v)
+    end
+
+    def import_segment(id, from, to)
+        @db.insert_segment.execute(id, from, to)
+    end
+
+    def import_segment_tag(id, k, v)
+        @db.insert_segment_tag.execute(id, k, v)
+    end
+
+    def import_way(id, segment, position)
+        @db.insert_way.execute(id, segment, position)
+    end
+
+    def import_way_tag(id, k, v)
+        @db.insert_way_tag.execute(id, k, v)
+    end
+
+end
+
+class Xml_import_osm
+
+    def initialize(osm)
+        @osm = osm
+    end
+
+    def import_node(id, lat, lon)
+        if @osm.node[id].nil?
+            @osm.node[id] = Node.new(lat, lon)
         end
     end
 
-    def tag_end(name)
-        @tag = nil if name == @tag
+    def import_node_tag(id, k, v)
+        #
     end
 
-    def method_missing(methodname, *args)
-        #puts "method_missing: #{methodname}(#{args})"
+    def import_segment(id, from, to)
+        #
     end
+
+    def import_segment_tag(id, k, v)
+        #
+    end
+
+    def import_way(id, segment, position)
+        if @osm.way[id].nil?
+            @osm.way[id] = Way.new
+        end
+        @osm.way[id].segments.push(segment)
+    end
+
+    def import_way_tag(id, k, v)
+        if @osm.way[id].nil?
+            @osm.way[id] = Way.new
+        end
+        @osm.way[id].tags.push([k, v])
+    end
+
 end

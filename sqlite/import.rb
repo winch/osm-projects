@@ -8,6 +8,7 @@ require 'rexml/document'
 require 'sqlite3'
 require File.dirname(__FILE__) + '/database.rb'
 require File.dirname(__FILE__) + '/xml_import.rb'
+require File.dirname(__FILE__) + '/xml_reader.rb'
 
 if ARGV.length != 2
     puts 'import.rb planet.osm database.db'
@@ -22,7 +23,10 @@ db.create_tables()
 db.prepare_import_statments()
 
 db.db.execute("BEGIN")
-listner = Listener.new(db)
+
+importer = Xml_import_database.new(db)
+
+listner = Listener.new(importer)
 if (ARGV[0] == '-')
     osm = STDIN
 else

@@ -125,9 +125,7 @@ class Osm
         #processes a node result adding nodes to @node
         result.each do |node|
             if @node[node[0]].nil?
-                @node[node[0]] = Node.new
-                @node[node[0]].lat = node[1]
-                @node[node[0]].lon = node[2]
+                @node[node[0]] = Node.new(node[1], node[2])
                 #add tags
                 get_node_tag(node)
             end
@@ -138,7 +136,7 @@ class Osm
         #find all nodes matching where_clause
         @db.db.execute("select id from node_tag where " + where_clause) do |node|
             if @node[node[0]].nil?
-                @node[node[0]] = Node.new
+                @node[node[0]] = Node.new(0,0)
                 #find node attributes
                 @db.export_node.execute(node[0]) do |result|
                     result.each do |node_attr|

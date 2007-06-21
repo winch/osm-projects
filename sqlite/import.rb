@@ -7,7 +7,7 @@
 require 'rexml/document'
 require 'sqlite3'
 require File.dirname(__FILE__) + '/database.rb'
-require File.dirname(__FILE__) + '/xml.rb'
+require File.dirname(__FILE__) + '/xml_import.rb'
 
 if ARGV.length != 2
     puts 'import.rb planet.osm database.db'

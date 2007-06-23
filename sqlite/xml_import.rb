@@ -1,6 +1,8 @@
 
 # $Id$
 
+require File.dirname(__FILE__) + '/osm.rb'
+
 class Xml_import_database
 
     def initialize(database)

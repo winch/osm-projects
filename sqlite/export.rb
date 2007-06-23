@@ -6,7 +6,6 @@
 
 require 'sqlite3'
 require File.dirname(__FILE__) + '/database.rb'
-require File.dirname(__FILE__) + '/primative.rb'
 require File.dirname(__FILE__) + '/xml_write.rb'
 require File.dirname(__FILE__) + '/osm.rb'
 require File.dirname(__FILE__) + '/config.rb'
@@ -31,13 +30,26 @@ output = Xml_writer.new(file)
 
 osm = Osm.new(db)
 
-osm.find_way_where("k = 'Highway'")
+#osm.find_way_where("id = 4313841 or id = 4755824")
+osm.find_segment_where("k = 'class' and v = 'motorway'")
+osm.find_way_from_segment
 osm.find_segment_from_way
 osm.find_node_from_segment
 
 #update data from live server
-api = Api.new(osm, config)
-api.refresh_way
+#api = Api.new(osm, config)
+#api.refresh_way
+
+#osm.way.each_value do |way|
+#    action = nil
+#    way.tags.each do |tags|
+#        if tags[0] == 'highway'
+#            tags[1] = 'unclassified'
+#            action = 'modify'
+#        end
+#    end
+#    way.action = action
+#end
 
 #write osm data
 output.write(osm)

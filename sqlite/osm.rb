@@ -1,6 +1,8 @@
 
 # $Id$
 
+require File.dirname(__FILE__) + '/primative.rb'
+
 class Osm
     attr_accessor :node, :segment, :way
 

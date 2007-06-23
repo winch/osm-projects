@@ -19,6 +19,14 @@ class Xml_writer
         @output.write("    <tag k=\"#{tag[0]}\" v=\"#{CGI.escapeHTML(tag[1])}\"/>\n") if !tag[1].nil?
     end
 
+    def get_action(primative)
+        action = ''
+        if !primative.action.nil?
+            action = "action=\"#{primative.action}\""
+        end
+        action
+    end
+
     def write(osm)
         #node
         osm.node.each do |id, node|
@@ -35,7 +43,8 @@ class Xml_writer
     end
 
     def write_node(id, node)
-        @output.write("  <node id=\"#{id}\" lat=\"#{node.lat}\" lon=\"#{node.lon}\"")
+        action = get_action(node)
+        @output.write("  <node id=\"#{id}\" #{action} lat=\"#{node.lat}\" lon=\"#{node.lon}\"")
         if node.tags.empty?
             #no tags so close node
             @output.write("/>\n")
@@ -49,7 +58,8 @@ class Xml_writer
     end
 
     def write_segment(id, segment)
-        @output.write("  <segment id=\"#{id}\" from=\"#{segment.node_a}\" to=\"#{segment.node_b}\"")
+        action = get_action(segment)
+        @output.write("  <segment id=\"#{id}\" #{action} from=\"#{segment.node_a}\" to=\"#{segment.node_b}\"")
         if segment.tags.empty?
             #no tags so close segment
             @output.write("/>\n")
@@ -63,7 +73,8 @@ class Xml_writer
     end
 
     def write_way(id, way)
-        @output.write("  <way id=\"#{id}\">\n")
+        action = get_action(way)
+        @output.write("  <way id=\"#{id}\" #{action}>\n")
         #segments
         way.segments.each do |segment|
             @output.write("    <seg id=\"#{segment}\"/>\n")

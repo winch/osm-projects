@@ -2,10 +2,11 @@
 # $Id$
 
 class Primative
-    attr_accessor :tags
+    attr_accessor :tags, :action
 
     def initialize
         @tags = Array.new
+        @action = nil
     end
 end
 

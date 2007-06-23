@@ -1,6 +1,8 @@
 
 # $Id$
 
+require File.dirname(__FILE__) + '/xml_import.rb'
+
 class Listener
 
     def initialize(importer)

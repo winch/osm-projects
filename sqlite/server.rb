@@ -10,7 +10,6 @@ require 'thread'
 require 'webrick'
 include WEBrick
 require File.dirname(__FILE__) + '/xml_write.rb'
-require File.dirname(__FILE__) + '/primative.rb'
 require File.dirname(__FILE__) + '/database.rb'
 require File.dirname(__FILE__) + '/osm.rb'
 

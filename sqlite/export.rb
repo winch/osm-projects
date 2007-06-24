@@ -1,8 +1,23 @@
 #!/usr/bin/env ruby
 
+#--
 # $Id$
-
-#exports from db to osm xml
+#
+#Copyright (C) 2007 David Dent
+#
+#This program is free software; you can redistribute it and/or
+#modify it under the terms of the GNU General Public License
+#as published by the Free Software Foundation; either version 2
+#of the License, or (at your option) any later version.
+#
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU General Public License for more details.
+#
+#You should have received a copy of the GNU General Public License
+#along with this program; if not, write to the Free Software
+#Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 require 'sqlite3'
 require File.dirname(__FILE__) + '/database.rb'
@@ -30,26 +45,31 @@ output = Xml_writer.new(file)
 
 osm = Osm.new(db)
 
-#osm.find_way_where("id = 4313841 or id = 4755824")
-osm.find_segment_where("k = 'class' and v = 'motorway'")
+puts 'find_way_where'
+#osm.find_way_where("k = 'area' and v = 'yes'")
+osm.find_segment_where("k = 'class' and v = 'canal'")
 osm.find_way_from_segment
+puts 'find segment from way'
 osm.find_segment_from_way
+puts 'find node from segment'
 osm.find_node_from_segment
 
 #update data from live server
 #api = Api.new(osm, config)
 #api.refresh_way
 
-#osm.way.each_value do |way|
-#    action = nil
-#    way.tags.each do |tags|
-#        if tags[0] == 'highway'
-#            tags[1] = 'unclassified'
-#            action = 'modify'
-#        end
-#    end
-#    way.action = action
-#end
+=begin
+osm.way.each_value do |way|
+    action = nil
+    way.tags.each do |tags|
+        if tags[0] == 'highway' and tags[1] = 'footpath'
+            tags[1] = 'footway'
+            action = 'modify'
+        end
+    end
+    way.action = action
+end
+=end
 
 #write osm data
 output.write(osm)

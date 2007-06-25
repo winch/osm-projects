@@ -1,4 +1,3 @@
-
 #--
 # $Id$
 #
@@ -22,19 +21,28 @@ require 'net/http'
 require 'uri'
 require 'rexml/document'
 require 'stringio'
+require 'logger'
 require File.dirname(__FILE__) + '/osm.rb'
+
+#Allows the live api to be queried
 
 class Api
 
-    def initialize(osm, config)
+    def initialize(osm, config, log)
+        #Osm object
         @osm = osm
+        #Osm object to recieve live Primatives from api
         @new_osm = Osm.new(nil)
+        #base URL of api server (http://www.openstreetmap.org/api/0.4)
         @api_server = config['api_server']
+        #Logger to use for logging
+        @log = log
     end
 
+    #Checks each way matches the live version and deletes it if it does not.
     def refresh_way
         @osm.way.each_key do |way|
-            puts 'refreshing ' + way
+            @log.info('refreshing ' + way)
             response = query_server('/way/' + way)
             if !response.nil?
                 xml = StringIO.new(response)
@@ -43,10 +51,12 @@ class Api
                 REXML::Document.parse_stream(response, listner)
                 if compare_way(@osm.way[way], @new_osm.way[way]) == false
                     #remove way
+                    @log.debug(way + ' differs from live version')
                     @osm.way.delete(way)
                 end
             else
                 #remove way
+                @log.debug(way + ' differs from live version')
                 @osm.way.delete(way)
             end
         end
@@ -60,21 +70,34 @@ class Api
 
     private
 
-    def compare_way(a, b)
-        if a.segments != b.segments
-            return false
-        end
+    def compare_tags(a, b)
+        #compares tags, the same tags in a different order are considered equal
         equal = true
-        a.tags.each do |tag|
-            if b.tags.index(tag).nil?
+        a.each do |tag|
+            if b.index(tag).nil?
+                equal = false
+            end
+        end
+        b.each do |tag|
+            if a.index(tag).nil?
                 equal = false
             end
         end
         equal
     end
 
+    def compare_way(a, b)
+        #checks if way a is the same as way b
+        if a.segments != b.segments
+            return false
+        end
+        compare_tags(a.tags, b.tags)
+    end
+
     def query_server(command)
+        @log.debug(@api_server + command)
         response = Net::HTTP.get_response(URI.parse(@api_server + command))
+        @log.debug("response code = #{response.code}")
         if response.code == '200'
             return response.body
         else

@@ -1,4 +1,3 @@
-
 #--
 # $Id$
 #
@@ -18,22 +17,26 @@
 #along with this program; if not, write to the Free Software
 #Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
+#Wrappes sqlite3 database.
+#Creates required tables and indexes and manages prepared statements
+
 class Database
 
+    #SQLite3::Database
     attr_reader :db
-    #insert prepared statments
-    attr_reader :insert_node, :insert_node_tag, :insert_segment, :insert_segment_tag
-    attr_reader :insert_way, :insert_way_tag
-    #export preparded statments
-    attr_reader :export_way_tag, :export_way_segment, :export_segment_tag, :export_segment_node
-    attr_reader :export_node_tag, :export_node, :export_node_from_segment, :export_node_at
+    #insert prepared statment
+    attr_reader :insert_node, :insert_node_tag, :insert_segment, :insert_segment_tag,
+                :insert_way, :insert_way_tag
+    #export preparded statment
+    attr_reader :export_way_tag, :export_way_segment, :export_segment_tag, :export_segment_node,
+                :export_node_tag, :export_node, :export_node_from_segment, :export_node_at
 
     def initialize(file_name)
         @db = SQLite3::Database.new(file_name)
     end
 
+    #prepare statements used during import
     def prepare_import_statments
-        #statements used during import
         @insert_node = @db.prepare("INSERT INTO node (id, lat, lon) VALUES(?, ?, ?)")
         @insert_node_tag = @db.prepare("INSERT INTO node_tag (id, k, v) VALUES(?, ?, ?)")
         @insert_segment = @db.prepare("INSERT INTO segment (id, node_a, node_b) VALUES(?, ?, ?)")
@@ -42,8 +45,8 @@ class Database
         @insert_way_tag = @db.prepare("INSERT INTO way_tag (id, k, v) VALUES(?, ?, ?)")
     end
 
+    #prepare statments used during export and by server
     def prepare_export_statments
-        #statments used during export
         @export_way_tag = @db.prepare("select k, v from way_tag where id = ?")
         @export_way_segment = @db.prepare("select segment from way where id = ? order by position")
         @export_segment_tag = @db.prepare("select k, v from segment_tag where id = ?")
@@ -55,8 +58,9 @@ class Database
             @db.prepare("select id, lat, lon from node where (lon > ? and lon < ?) and (lat > ? and lat < ?)")
     end
 
+    #close any existing prepared statments
     def close
-        #close prepared statments
+        #import
         @insert_node.close if !@insert_node.nil?
         @insert_node_tag.close if !@insert_node_tag.nil?
         @insert_segment.close if !@insert_segment.nil?
@@ -75,6 +79,7 @@ class Database
         @db.close
     end
 
+    #create database tables
     def create_tables
         #node
         @db.execute('CREATE TABLE node(id NUMERIC, lat NUMERIC, lon NUMERIC)')
@@ -87,7 +92,8 @@ class Database
         @db.execute('CREATE TABLE way_tag(id NUMERIC, k TEXT, v TEXT)')
     end
 
-     def create_index
+    #create database indexes
+    def create_index
         #node
         @db.execute('CREATE INDEX node_index on node(id)')
         @db.execute('CREATE INDEX node_tag_index on node_tag(id)')

@@ -20,6 +20,7 @@
 #Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 require 'sqlite3'
+require 'logger'
 require File.dirname(__FILE__) + '/database.rb'
 require File.dirname(__FILE__) + '/xml_write.rb'
 require File.dirname(__FILE__) + '/osm.rb'
@@ -36,6 +37,8 @@ if ARGV.length != 2
 end
 
 config = Config.load(File.dirname(__FILE__) + '/config.yaml')
+log = Logger.new(STDOUT)
+log.level = Logger::DEBUG
 
 db = Database.new(ARGV[0])
 db.prepare_export_statments
@@ -45,31 +48,16 @@ output = Xml_writer.new(file)
 
 osm = Osm.new(db)
 
-puts 'find_way_where'
-#osm.find_way_where("k = 'area' and v = 'yes'")
-osm.find_segment_where("k = 'class' and v = 'canal'")
-osm.find_way_from_segment
-puts 'find segment from way'
+osm.find_way_where("k = 'route' and v = 'ncn'")
+#osm.find_segment_where("k = 'class' and v = 'canal'")
+#osm.find_way_from_segment
 osm.find_segment_from_way
-puts 'find node from segment'
 osm.find_node_from_segment
+osm.find_node_where("k = 'place' and v = 'city'")
 
 #update data from live server
-#api = Api.new(osm, config)
+#api = Api.new(osm, config, log)
 #api.refresh_way
-
-=begin
-osm.way.each_value do |way|
-    action = nil
-    way.tags.each do |tags|
-        if tags[0] == 'highway' and tags[1] = 'footpath'
-            tags[1] = 'footway'
-            action = 'modify'
-        end
-    end
-    way.action = action
-end
-=end
 
 #write osm data
 output.write(osm)

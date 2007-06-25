@@ -1,4 +1,3 @@
-
 #--
 # $Id$
 #
@@ -19,6 +18,7 @@
 #Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 require File.dirname(__FILE__) + '/osm.rb'
+require File.dirname(__FILE__) + '/database.rb'
 
 class Xml_import_database
 

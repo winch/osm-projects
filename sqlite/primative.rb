@@ -21,6 +21,8 @@
 #along with this program; if not, write to the Free Software
 #Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
+require 'cgi'
+
 #Base primative class
 class Primative
     #array containing tags as key, value pairs.
@@ -33,6 +35,32 @@ class Primative
         @tags = Array.new
         @action = nil
     end
+
+    #The same tags in a different order are considered equal.
+    def ==(other)
+        equal = true
+        @tags.each do |tag|
+            if other.tags.index(tag).nil?
+                equal = false
+            end
+        end
+        other.tags.each do |tag|
+            if @tags.index(tag).nil?
+                equal = false
+            end
+        end
+        equal
+    end
+
+    #returns the tags in osm xml
+    def to_xml
+        xml = ''
+        @tags.each do |tag|
+            xml << "    <tag k=\"#{tag[0]}\" v=\"#{CGI.escapeHTML(tag[1])}\"/>\n"
+        end
+        xml
+    end
+
 end
 
 #Node data primative
@@ -48,6 +76,30 @@ class Node < Primative
         @lon = lon
     end
 
+    def ==(other)
+        if (@lat == other.lat) && (@lon == other.lon)
+            return super(other)
+        end
+        false
+    end
+
+    #returns node in osm xml
+    def to_xml(id)
+        action = ' '
+        if !@action.nil?
+            action = " action=\"#{@action}\" "
+        end
+        xml = "  <node id=\"#{id}\"#{action}lat=\"#{@lat}\" lon=\"#{@lon}\""
+        if @tags.empty?
+            #no tags so close node
+            xml << "/>\n"
+        else
+            xml << ">\n"
+            xml << super() << "  </node>\n"
+        end
+        xml
+    end
+
 end
 
 #Segment data primative
@@ -56,6 +108,31 @@ class Segment < Primative
     attr_accessor :node_a
     #node id that the segment points to
     attr_accessor :node_b
+
+    def ==(other)
+        if (@node_a == other.node_a) && (@node_b == other.node_b)
+            return super(other)
+        end
+        false
+    end
+
+    #returns segment in osm xml
+    def to_xml(id)
+        action = ' '
+        if !@action.nil?
+            action = " action=\"#{@action}\" "
+        end
+        xml = "  <segment id=\"#{id}\"#{action}from=\"#{@node_a}\" to=\"#{@node_b}\""
+                if @tags.empty?
+            #no tags so close node
+            xml << "/>\n"
+        else
+            xml << ">\n"
+            xml << super() << "  </segment>\n"
+        end
+        xml
+    end
+
 end
 
 #way data primative
@@ -67,4 +144,17 @@ class Way < Primative
         super
         @segments = Array.new
     end
+
+    def ==(other)
+        if (@segments == other.segments)
+            return super(other)
+        end
+        false
+    end
+
+    #returns way in osm xml
+    def to_xml(id)
+        ''
+    end
+
 end

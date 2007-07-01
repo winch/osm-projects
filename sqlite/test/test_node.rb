@@ -22,8 +22,9 @@
 require 'test/unit'
 require File.dirname(__FILE__) + '/../primative.rb'
 
-class TestPrimative < Test::Unit::TestCase
+class TestNode < Test::Unit::TestCase
 
+    #tests == method
     def test_node_equal
         a = Node.new(1, 2)
         a.tags.push(['k', 'v'])
@@ -51,11 +52,35 @@ class TestPrimative < Test::Unit::TestCase
         assert_equal(false, d == a)
     end
 
+    #tests to_xml method
     def test_node_to_xml
+        #node with tags
         a = Node.new(1, 2)
         a.tags.push(['key', 'value & value'])
         a.tags.push(['highway', 'footway'])
+        #node without tags
         b = Node.new(3, 4)
+        #tests
+        xml = a.to_xml(123).split("\n")
+        assert_equal(4, xml.length)
+        assert_equal('  <node id="123" lat="1" lon="2">', xml[0])
+        assert_equal('    <tag k="key" v="value &amp; value"/>', xml[1])
+        assert_equal('    <tag k="highway" v="footway"/>', xml[2])
+        assert_equal('  </node>', xml[3])
+        xml = b.to_xml(123).split("\n")
+        assert_equal(1, xml.length)
+        assert_equal('  <node id="123" lat="3" lon="4"/>', xml[0])
+        puts xml[0]
+        #node with action
+        a.action = 'delete'
+        b.action = 'modify'
+        #tests
+        xml = a.to_xml(123).split("\n")
+        assert_equal(4, xml.length)
+        assert_equal('  <node id="123" action="delete" lat="1" lon="2">', xml[0])
+        xml = b.to_xml(123).split("\n")
+        assert_equal(1, xml.length)
+        assert_equal('  <node id="123" action="modify" lat="3" lon="4"/>', xml[0])
     end
 
 end

@@ -27,21 +27,30 @@ class TestNode < Test::Unit::TestCase
     #tests == method
     def test_node_equal
         a = Node.new(1, 2)
+        a.id = 123
         a.tags.push(['k', 'v'])
         a.tags.push(['v', 'k'])
         #b has different order tags
         b = Node.new(1, 2)
+        b.id = 123
         b.tags.push(['v', 'k'])
         b.tags.push(['k', 'v'])
         #c has different lon
         c = Node.new(1, 3)
+        c.id = 123
         c.tags.push(['k', 'v'])
         c.tags.push(['v', 'k'])
         #d has different tags
         d = Node.new(1, 2)
+        d.id = 123
         d.tags.push(['v', 'k'])
         d.tags.push(['k', 'v'])
         d.tags.push(['kk', 'vv'])
+        #e has different id
+        e = Node.new(1, 2)
+        e.id = 321
+        e.tags.push(['k', 'v'])
+        e.tags.push(['v', 'k'])
 
         #tests
         assert_equal(true, a == b)
@@ -50,37 +59,39 @@ class TestNode < Test::Unit::TestCase
         assert_equal(false, c == a)
         assert_equal(false, a == d)
         assert_equal(false, d == a)
+        assert_equal(false, a == e)
     end
 
     #tests to_xml method
     def test_node_to_xml
         #node with tags
         a = Node.new(1, 2)
+        a.id = 123
         a.tags.push(['key', 'value & value'])
         a.tags.push(['highway', 'footway'])
         #node without tags
         b = Node.new(3, 4)
+        b.id = 456
         #tests
-        xml = a.to_xml(123).split("\n")
+        xml = a.to_xml.split("\n")
         assert_equal(4, xml.length)
         assert_equal('  <node id="123" lat="1" lon="2">', xml[0])
         assert_equal('    <tag k="key" v="value &amp; value"/>', xml[1])
         assert_equal('    <tag k="highway" v="footway"/>', xml[2])
         assert_equal('  </node>', xml[3])
-        xml = b.to_xml(123).split("\n")
+        xml = b.to_xml.split("\n")
         assert_equal(1, xml.length)
-        assert_equal('  <node id="123" lat="3" lon="4"/>', xml[0])
-        puts xml[0]
+        assert_equal('  <node id="456" lat="3" lon="4"/>', xml[0])
         #node with action
         a.action = 'delete'
         b.action = 'modify'
         #tests
-        xml = a.to_xml(123).split("\n")
+        xml = a.to_xml.split("\n")
         assert_equal(4, xml.length)
         assert_equal('  <node id="123" action="delete" lat="1" lon="2">', xml[0])
-        xml = b.to_xml(123).split("\n")
+        xml = b.to_xml.split("\n")
         assert_equal(1, xml.length)
-        assert_equal('  <node id="123" action="modify" lat="3" lon="4"/>', xml[0])
+        assert_equal('  <node id="456" action="modify" lat="3" lon="4"/>', xml[0])
     end
 
 end

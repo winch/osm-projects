@@ -27,35 +27,47 @@ class TestSegment < Test::Unit::TestCase
     #tests == method
     def test_segment_equal
         a = Segment.new
+        a.id = 321
         a.node_a = 123
         a.node_b = 456
         a.tags.push(['k', 'v'])
         a.tags.push(['v', 'k'])
         #b has different order tags
         b = Segment.new
+        b.id = 321
         b.node_a = 123
         b.node_b = 456
         b.tags.push(['v', 'k'])
         b.tags.push(['k', 'v'])
         #c has different node_a
         c = Segment.new
+        c.id = 321
         c.node_a = 321
         c.node_b = 456
         c.tags.push(['k', 'v'])
         c.tags.push(['v', 'k'])
         #d has different node_b
         d = Segment.new
+        d.id = 321
         d.node_a = 123
         d.node_b = 321
         d.tags.push(['k', 'v'])
         d.tags.push(['v', 'k'])
         #e has different tags
         e = Segment.new
+        e.id = 321
         e.node_a = 123
         e.node_b = 456
         e.tags.push(['v', 'k'])
         e.tags.push(['k', 'v'])
         e.tags.push(['kk', 'vv'])
+        #f has different id
+        f = Segment.new
+        f.id = 123
+        f.node_a = 123
+        f.node_b = 456
+        f.tags.push(['k', 'v'])
+        f.tags.push(['v', 'k'])
 
         #tests
         assert_equal(true, a == b)
@@ -63,36 +75,39 @@ class TestSegment < Test::Unit::TestCase
         assert_equal(false, a == d)
         assert_equal(false, a == e)
         assert_equal(false, e == a)
+        assert_equal(false, a == f)
     end
 
     #tests to_xml method
     def test_segment_to_xml
         #segment with tags
         a = Segment.new
+        a.id = 321
         a.node_a = 123
         a.node_b = 456
         a.tags.push(['highway', 'footway'])
         a.tags.push(['name', 'asdf'])
         #segment without tags
         b = Segment.new
+        b.id = 321
         b.node_a = 789
         b.node_b = 654
 
         #tests
-        xml = a.to_xml(321).split("\n")
+        xml = a.to_xml.split("\n")
         assert_equal(4, xml.length)
         assert_equal('  <segment id="321" from="123" to="456">', xml[0])
         assert_equal('    <tag k="highway" v="footway"/>', xml[1])
         assert_equal('    <tag k="name" v="asdf"/>', xml[2])
         assert_equal('  </segment>', xml[3])
-        xml = b.to_xml(321).split("\n")
+        xml = b.to_xml.split("\n")
         assert_equal(1, xml.length)
         assert_equal('  <segment id="321" from="789" to="654"/>', xml[0])
         #segment with action
         b.action = 'modify'
-        xml = b.to_xml(456).split("\n")
+        xml = b.to_xml.split("\n")
         assert_equal(1, xml.length)
-        assert_equal('  <segment id="456" action="modify" from="789" to="654"/>', xml[0])
+        assert_equal('  <segment id="321" action="modify" from="789" to="654"/>', xml[0])
     end
 
 end

@@ -25,6 +25,8 @@ require 'cgi'
 
 #Base primative class
 class Primative
+    #id
+    attr_accessor :id
     #array containing tags as key, value pairs.
     attr_accessor :tags
     #if !nil value will be written in action attribute when output as osm xml.
@@ -38,6 +40,9 @@ class Primative
 
     #The same tags in a different order are considered equal.
     def ==(other)
+        if @id != other.id
+            return false
+        end
         equal = true
         @tags.each do |tag|
             if other.tags.index(tag).nil?
@@ -84,18 +89,18 @@ class Node < Primative
     end
 
     #returns node in osm xml
-    def to_xml(id)
+    def to_xml
         action = ' '
         if !@action.nil?
             action = " action=\"#{@action}\" "
         end
-        xml = "  <node id=\"#{id}\"#{action}lat=\"#{@lat}\" lon=\"#{@lon}\""
+        xml = "  <node id=\"#{@id}\"#{action}lat=\"#{@lat}\" lon=\"#{@lon}\""
         if @tags.empty?
             #no tags so close node
             xml << "/>\n"
         else
             xml << ">\n"
-            xml << super() << "  </node>\n"
+            xml << super << "  </node>\n"
         end
         xml
     end
@@ -117,18 +122,18 @@ class Segment < Primative
     end
 
     #returns segment in osm xml
-    def to_xml(id)
+    def to_xml
         action = ' '
         if !@action.nil?
             action = " action=\"#{@action}\" "
         end
-        xml = "  <segment id=\"#{id}\"#{action}from=\"#{@node_a}\" to=\"#{@node_b}\""
+        xml = "  <segment id=\"#{@id}\"#{action}from=\"#{@node_a}\" to=\"#{@node_b}\""
                 if @tags.empty?
             #no tags so close node
             xml << "/>\n"
         else
             xml << ">\n"
-            xml << super() << "  </segment>\n"
+            xml << super << "  </segment>\n"
         end
         xml
     end
@@ -153,7 +158,7 @@ class Way < Primative
     end
 
     #returns way in osm xml
-    def to_xml(id)
+    def to_xml
         ''
     end
 

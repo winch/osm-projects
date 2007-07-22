@@ -59,6 +59,7 @@ class Osm
                 #add segment to @segment
                 @segment[segment] = Segment.new
                 #find segment attributes
+                @segment[segment].id = segment
                 @db.export_segment_node.execute(segment) do |result|
                     result.each do |segment_attr|
                         @segment[segment].node_a = segment_attr[0]
@@ -91,6 +92,7 @@ class Osm
                 #add segment to @segment
                 @segment[segment] = Segment.new
                 #find segment attributes
+                @segment[segment].id = segment
                 @db.export_segment_node.execute(segment) do |result|
                     result.each do |segment_attr|
                         @segment[segment].node_a = segment_attr[0]
@@ -109,6 +111,7 @@ class Osm
             if @node[node[0]].nil?
                 @node[node[0]] = Node.new(0,0)
                 #find node attributes
+                @node[node[0]].id = node[0]
                 @db.export_node.execute(node[0]) do |result|
                     result.each do |node_attr|
                         @node[node[0]].lat = node_attr[0]
@@ -137,6 +140,24 @@ class Osm
         end
     end
 
+    def to_xml(stream)
+        stream.write('<?xml version="1.0" encoding="UTF-8"?>' + "\n")
+        stream.write("<osm version=\"0.4\" generator=\"export.rb v#{$VERSION}\">\n")
+        #node
+        @node.each do |id, node|
+            stream.write(node.to_xml)
+        end
+        #segment
+        @segment.each do |id, segment|
+            stream.write(segment.to_xml)
+        end
+        #way
+        @way.each do |id, way|
+            stream.write(way.to_xml)
+        end
+        stream.write("</osm>\n")
+    end
+
     private
 
     def process_way(way)
@@ -144,6 +165,7 @@ class Osm
         if @way[way].nil?
             #add way to @way
             item = Way.new
+            item.id = way
             #add tags
             @db.export_way_tag.execute(way) do |result|
                 result.each { |tag| item.tags.push(tag) }
@@ -167,6 +189,7 @@ class Osm
         result.each do |node|
             if @node[node[0]].nil?
                 @node[node[0]] = Node.new(node[1], node[2])
+                @node[node[0]].id = node[0]
                 #add tags
                 get_node_tag(node)
             end
@@ -184,6 +207,7 @@ class Osm
             #add segment to @segment
             if @segment[segment].nil?
                 item = Segment.new
+                item.id = segment
                 item.node_a = nodes[0]
                 item.node_b = nodes[1]
                 @segment[segment] = item

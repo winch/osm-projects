@@ -61,7 +61,11 @@ class Primative
     def to_xml
         xml = ''
         @tags.each do |tag|
-            xml << "    <tag k=\"#{tag[0]}\" v=\"#{CGI.escapeHTML(tag[1])}\"/>\n"
+            if tag[0] != nil && tag[1] != nil
+                xml << "    <tag k=\"#{tag[0]}\" v=\"#{CGI.escapeHTML(tag[1])}\"/>\n"
+            else
+                puts "id |#{@id}| tag[0] |#{tag[0]}| tag[1] |#{tag[1]}|"
+            end
         end
         xml
     end
@@ -159,7 +163,15 @@ class Way < Primative
 
     #returns way in osm xml
     def to_xml
-        ''
+        action = ''
+        if !@action.nil?
+            action = " action=\"#{@action}\""
+        end
+        xml = "  <way id=\"#{id}\"#{action}>\n"
+        @segments.each do |segment|
+            xml << "    <seg id=\"#{segment}\"/>\n"
+        end
+        xml << super << "  </way>\n"
     end
 
 end

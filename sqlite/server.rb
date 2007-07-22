@@ -24,7 +24,6 @@ require 'stringio'
 require 'thread'
 require 'webrick'
 include WEBrick
-require File.dirname(__FILE__) + '/xml_write.rb'
 require File.dirname(__FILE__) + '/database.rb'
 require File.dirname(__FILE__) + '/osm.rb'
 
@@ -67,7 +66,6 @@ class MapServlet < HTTPServlet::AbstractServlet
             res['Content-Type'] = 'Content-Type: text/xml; charset=utf-8'
             osm = Osm.new(@db)
             output = StringIO.new
-            xml = Xml_writer.new(output)
             @logger.info('find_node_at | ' + req.query['bbox'])
             osm.find_node_at(bbox)
             @logger.info('find_segment_from_node')
@@ -78,12 +76,12 @@ class MapServlet < HTTPServlet::AbstractServlet
             osm.find_segment_from_way
             @logger.info('find_node_from_segment')
             osm.find_node_from_segment
-            @logger.info("exported #{osm.node.length} nodes, #{osm.segment.length} segments and #{osm.way.length} ways")
-            xml.write(osm)
-            xml.close
+            @logger.info('generating xml')
+            osm.to_xml(output)
             output.rewind
             res.body = output.read
             output.close
+            @logger.info("exported #{osm.node.length} nodes, #{osm.segment.length} segments and #{osm.way.length} ways")
             raise HTTPStatus::OK
         else
             raise HTTPStatus::PreconditionFailed.new("missing attribute: 'bbox'")

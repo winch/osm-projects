@@ -22,7 +22,6 @@
 require 'sqlite3'
 require 'logger'
 require File.dirname(__FILE__) + '/database.rb'
-require File.dirname(__FILE__) + '/xml_write.rb'
 require File.dirname(__FILE__) + '/osm.rb'
 require File.dirname(__FILE__) + '/config.rb'
 require File.dirname(__FILE__) + '/api.rb'
@@ -44,26 +43,35 @@ db = Database.new(ARGV[0])
 db.prepare_export_statments
 
 file = File.open(ARGV[1], "w")
-output = Xml_writer.new(file)
 
 osm = Osm.new(db)
 
-osm.find_way_where("k = 'route' and v = 'ncn'")
+#osm.find_way_where("k = 'name' and  v = 'Windmill Avenue'")
 #osm.find_segment_where("k = 'class' and v = 'canal'")
 #osm.find_way_from_segment
-osm.find_segment_from_way
-osm.find_node_from_segment
-osm.find_node_where("k = 'place' and v = 'city'")
+#osm.find_segment_from_way
+#osm.find_node_from_segment
+osm.find_node_where("id = 28328008")
 
 #update data from live server
 #api = Api.new(osm, config, log)
 #api.refresh_way
 
+=begin
+osm.way.each_value do |way|
+    way.tags.each do |tag|
+        if tag[0] == 'highway' && tag[1] == 'Pedestrian'
+            tag[1] = 'pedestrian'
+            way.action = 'modify'
+        end
+    end
+end
+=end
+
 #write osm data
-output.write(osm)
+osm.to_xml(file)
 
 puts "exported #{osm.node.length} nodes, #{osm.segment.length} segments and #{osm.way.length} ways"
 
-output.close
 file.close
 db.close

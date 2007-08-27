@@ -26,7 +26,7 @@ class Database
     attr_reader :db
     #insert prepared statment
     attr_reader :insert_node, :insert_node_tag, :insert_segment, :insert_segment_tag,
-                :insert_way, :insert_way_tag
+                :insert_way, :insert_way_tag, :insert_tag
     #export preparded statment
     attr_reader :export_way_tag, :export_way_segment, :export_segment_tag, :export_segment_node,
                 :export_node_tag, :export_node, :export_node_from_segment, :export_node_at
@@ -38,11 +38,12 @@ class Database
     #prepare statements used during import
     def prepare_import_statments
         @insert_node = @db.prepare("INSERT INTO node (id, lat, lon) VALUES(?, ?, ?)")
-        @insert_node_tag = @db.prepare("INSERT INTO node_tag (id, k, v) VALUES(?, ?, ?)")
+        @insert_node_tag = @db.prepare("INSERT INTO node_tag (id, tag) VALUES(?, ?)")
         @insert_segment = @db.prepare("INSERT INTO segment (id, node_a, node_b) VALUES(?, ?, ?)")
-        @insert_segment_tag = @db.prepare("INSERT INTO segment_tag (id, k, v) VALUES(?, ?, ?)")
+        @insert_segment_tag = @db.prepare("INSERT INTO segment_tag (id, tag) VALUES(?, ?)")
         @insert_way = @db.prepare("INSERT INTO way (id, segment, position) VALUES(?, ?, ?)")
-        @insert_way_tag = @db.prepare("INSERT INTO way_tag (id, k, v) VALUES(?, ?, ?)")
+        @insert_way_tag = @db.prepare("INSERT INTO way_tag (id, tag) VALUES(?, ?)")
+        @insert_tag = @db.prepare("INSERT INTO tag (k, v) VALUES(?, ?)")
     end
 
     #prepare statments used during export and by server
@@ -67,6 +68,7 @@ class Database
         @insert_segment_tag.close if !@insert_segment_tag.nil?
         @insert_way.close if !@insert_way.nil?
         @insert_way_tag.close if !@insert_way_tag.nil?
+        @insert_tag.close if !@insert_tag.nil?
         #export
         @export_way_tag.close if !@export_way_tag.nil?
         @export_way_segment.close if !@export_way_segment.nil?
@@ -83,13 +85,15 @@ class Database
     def create_tables
         #node
         @db.execute('CREATE TABLE node(id NUMERIC, lat NUMERIC, lon NUMERIC)')
-        @db.execute('CREATE TABLE node_tag(id NUMERIC, k TEXT, v TEXT)')
+        @db.execute('CREATE TABLE node_tag(id NUMERIC, tag NUMERIC)')
         #segment
         @db.execute('CREATE TABLE segment(id NUMERIC, node_a NUMERIC, node_b NUMERIC)')
-        @db.execute('CREATE TABLE segment_tag(id NUMERIC, k TEXT, v TEXT)')
+        @db.execute('CREATE TABLE segment_tag(id NUMERIC, tag NUMERIC)')
         #ways
         @db.execute('CREATE TABLE way(id INTEGER, segment NUMERIC, position NUMERIC)')
-        @db.execute('CREATE TABLE way_tag(id NUMERIC, k TEXT, v TEXT)')
+        @db.execute('CREATE TABLE way_tag(id NUMERIC, tag NUMERIC)')
+        #tag
+        @db.execute('CREATE TABLE tag(id INTEGER PRIMARY KEY, k TEXT, v TEXT)')
     end
 
     #create database indexes
@@ -103,6 +107,8 @@ class Database
         #way
         @db.execute('CREATE INDEX way_index on way(id)')
         @db.execute('CREATE INDEX way_tag_index on way_tag(id)')
+        #tag
+        @db.execute('CREATE INDEX tag_index on tag(id)')
     end
 
 end

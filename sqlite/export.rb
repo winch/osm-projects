@@ -46,12 +46,12 @@ file = File.open(ARGV[1], "w")
 
 osm = Osm.new(db)
 
-#osm.find_way_where("k = 'name' and  v = 'Windmill Avenue'")
-#osm.find_segment_where("k = 'class' and v = 'canal'")
+osm.find_way_where("k = 'highway' and v = 'footpath'")
+#osm.find_segment_where("k = 'oneway' and v = 'Priory Close'")
 #osm.find_way_from_segment
-#osm.find_segment_from_way
-#osm.find_node_from_segment
-osm.find_node_where("id = 28328008")
+osm.find_segment_from_way
+osm.find_node_from_segment
+#osm.find_node_where("id = 28328008")
 
 #update data from live server
 #api = Api.new(osm, config, log)

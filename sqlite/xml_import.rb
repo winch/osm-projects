@@ -24,6 +24,7 @@ class Xml_import_database
 
     def initialize(database)
         @db = database
+        @tag_id = Hash.new()
     end
 
     def import_node(id, lat, lon)
@@ -31,7 +32,7 @@ class Xml_import_database
     end
 
     def import_node_tag(id, k, v)
-        @db.insert_node_tag.execute(id, k, v)
+        @db.insert_node_tag.execute(id, find_tag_id(k, v))
     end
 
     def import_segment(id, from, to)
@@ -39,7 +40,7 @@ class Xml_import_database
     end
 
     def import_segment_tag(id, k, v)
-        @db.insert_segment_tag.execute(id, k, v)
+        @db.insert_segment_tag.execute(id, find_tag_id(k, v))
     end
 
     def import_way(id, segment, position)
@@ -47,7 +48,22 @@ class Xml_import_database
     end
 
     def import_way_tag(id, k, v)
-        @db.insert_way_tag.execute(id, k, v)
+        @db.insert_way_tag.execute(id, find_tag_id(k, v))
+    end
+
+    private
+
+    #finds the id of a tag in the db and inserts tag if required
+    def find_tag_id(k, v)
+        id = nil
+        if @tag_id[k + v].nil?
+            #tag not in db
+            @db.insert_tag.execute(k, v)
+            @tag_id[k + v] = id = @db.db.last_insert_row_id
+        else
+            id = @tag_id[k + v]
+        end
+        id
     end
 
 end

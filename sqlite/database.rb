@@ -48,11 +48,11 @@ class Database
 
     #prepare statments used during export and by server
     def prepare_export_statments
-        @export_way_tag = @db.prepare("select k, v from way_tag where id = ?")
+        @export_way_tag = @db.prepare("select k, v from tag where id in (select tag from way_tag where id = ?)")
         @export_way_segment = @db.prepare("select segment from way where id = ? order by position")
-        @export_segment_tag = @db.prepare("select k, v from segment_tag where id = ?")
+        @export_segment_tag = @db.prepare("select k, v from tag where id in (select tag from segment_tag where id = ?)")
         @export_segment_node = @db.prepare("select node_a, node_b from segment where id = ?")
-        @export_node_tag = @db.prepare("select k, v from node_tag where id = ?")
+        @export_node_tag = @db.prepare("select k, v from tag where id in (select tag from node_tag where id = ?)")
         @export_node = @db.prepare("select lat, lon from node where id = ?")
         @export_node_from_segment = @db.prepare("select id, lat, lon from node where id = ? or id = ?")
         @export_node_at =

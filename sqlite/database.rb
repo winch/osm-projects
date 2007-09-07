@@ -24,10 +24,10 @@ class Database
 
     #SQLite3::Database
     attr_reader :db
-    #insert prepared statment
+    #insert prepared statement
     attr_reader :insert_node, :insert_node_tag, :insert_segment, :insert_segment_tag,
                 :insert_way, :insert_way_tag, :insert_tag
-    #export preparded statment
+    #export preparded statement
     attr_reader :export_way_tag, :export_way_segment, :export_segment_tag, :export_segment_node,
                 :export_node_tag, :export_node, :export_node_from_segment, :export_node_at
 
@@ -36,7 +36,7 @@ class Database
     end
 
     #prepare statements used during import
-    def prepare_import_statments
+    def prepare_import_statements
         @insert_node = @db.prepare("INSERT INTO node (id, lat, lon) VALUES(?, ?, ?)")
         @insert_node_tag = @db.prepare("INSERT INTO node_tag (id, tag) VALUES(?, ?)")
         @insert_segment = @db.prepare("INSERT INTO segment (id, node_a, node_b) VALUES(?, ?, ?)")
@@ -46,8 +46,8 @@ class Database
         @insert_tag = @db.prepare("INSERT INTO tag (k, v) VALUES(?, ?)")
     end
 
-    #prepare statments used during export and by server
-    def prepare_export_statments
+    #prepare statements used during export and by server
+    def prepare_export_statements
         @export_way_tag = @db.prepare("select k, v from tag where id in (select tag from way_tag where id = ?)")
         @export_way_segment = @db.prepare("select segment from way where id = ? order by position")
         @export_segment_tag = @db.prepare("select k, v from tag where id in (select tag from segment_tag where id = ?)")
@@ -59,7 +59,7 @@ class Database
             @db.prepare("select id, lat, lon from node where (lon > ? and lon < ?) and (lat > ? and lat < ?)")
     end
 
-    #close any existing prepared statments
+    #close database and any existing prepared statements
     def close
         #import
         @insert_node.close if !@insert_node.nil?

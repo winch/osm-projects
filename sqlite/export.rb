@@ -40,7 +40,7 @@ log = Logger.new(STDOUT)
 log.level = Logger::DEBUG
 
 db = Database.new(ARGV[0])
-db.prepare_export_statments
+db.prepare_export_statements
 
 file = File.open(ARGV[1], "w")
 

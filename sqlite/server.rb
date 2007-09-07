@@ -50,7 +50,7 @@ class MapServlet < HTTPServlet::AbstractServlet
     def initialize(config, database)
         super
         @db = Database.new(database)
-        @db.prepare_export_statments
+        @db.prepare_export_statements
     end
 
     def close

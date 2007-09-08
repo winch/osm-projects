@@ -55,19 +55,20 @@ class MapServlet < HTTPServlet::AbstractServlet
             res['Content-Type'] = 'Content-Type: text/xml; charset=utf-8'
             @logger.info("find_gpx_| #{req.query['bbox']}")
             @logger.info("page #{page}")
-            res.body = "<gpx version='1.0' creator='gpx_server #{$VERSION}'>"
-            res.body << "  <trk>"
-            res.body << "    <trkseg>"
+            res.body = "<?xml version='1.0' encoding='UTF-8'?>\n"
+            res.body << "<gpx version='1.0' creator='gpx_server #{$VERSION}' xmlns='http://www.topografix.com/GPX/1/0/'>\n"
+            res.body << "  <trk>\n"
+            res.body << "    <trkseg>\n"
             total = 0
             @db.export_point.execute(bbox[0], bbox[2], bbox[1], bbox[3], 5000, page * 5000) do |result|
                 result.each do |point|
-                    res.body << "<trkpt lat='#{point[0]}' lon='#{point[1]}'/>"
+                    res.body << "      <trkpt lat='#{point[0]}' lon='#{point[1]}'/>\n"
                     total += 1
                 end
             end
-            res.body << "    </trkseg>"
-            res.body << "  </trk>"
-            res.body << "</gpx>"
+            res.body << "    </trkseg>\n"
+            res.body << "  </trk>\n"
+            res.body << "</gpx>\n"
             @logger.info("exported #{total} points")
             raise HTTPStatus::OK
         else

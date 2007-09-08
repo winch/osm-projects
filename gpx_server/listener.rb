@@ -31,18 +31,11 @@ class Listener
     end
 
     def tag_start(name, attrs)
-        case name
-        when 'trkpt'
-            #set current tag
+        if name == 'trkpt'
+            #import point
             @db.insert_point.execute(attrs['lat'], attrs['lon'])
             @count += 1
-        else
-            #puts "Unrecognised tag <#{name}>"
         end
-    end
-
-    def tag_end(name)
-        #
     end
 
     def method_missing(methodname, *args)

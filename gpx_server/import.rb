@@ -31,7 +31,6 @@ if ARGV.length < 2
 end
 
 db = Database.new(ARGV[0])
-puts 'creating tables if required'
 db.create_tables()
 db.prepare_import_statements()
 

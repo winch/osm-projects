@@ -33,7 +33,7 @@ end
 db = Database.new(ARGV[0])
 puts 'creating tables if required'
 db.create_tables()
-db.prepare_import_statments()
+db.prepare_import_statements()
 
 db.db.execute("BEGIN")
 

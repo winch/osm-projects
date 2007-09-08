@@ -25,12 +25,21 @@ class Database
     #SQLite3::Database
     attr_reader :db
 
-    #insert prepared statment
+    #insert prepared statement
     attr_reader :insert_point
 
+    #export prepared statement
+    attr_reader :export_point
+
     #prepare statements used during import
-    def prepare_import_statments
+    def prepare_import_statements
         @insert_point = @db.prepare("INSERT INTO point (lat, lon) VALUES(?, ?)")
+    end
+
+    #prepare statements used during export
+    def prepare_export_statements
+        @export_point =
+        @db.prepare("select lat, lon from point where (lon > ? and lon < ?) and (lat > ? and lat < ?) limit ? offset ?")
     end
 
     def initialize(file_name)
@@ -46,6 +55,8 @@ class Database
     def close
         #import
         @insert_point.close if !@insert_point.nil?
+        #export
+        @export_point.close if !@export_point.nil?
         @db.close
     end
 

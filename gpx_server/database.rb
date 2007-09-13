@@ -39,7 +39,7 @@ class Database
     #prepare statements used during export
     def prepare_export_statements
         @export_point =
-        @db.prepare("select lat, lon from point where (lon > ? and lon < ?) and (lat > ? and lat < ?) limit ? offset ?")
+        @db.prepare("select lat, lon from point where (lon between ? and ?) and (lat between ? and ?) limit ? offset ?")
     end
 
     def initialize(file_name)

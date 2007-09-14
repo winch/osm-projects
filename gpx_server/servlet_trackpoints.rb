@@ -19,14 +19,18 @@
 
 class ServletTrackpoints < HTTPServlet::AbstractServlet
 
+    def initialize(config, database)
+        super
+        @db = Database.new(database)
+        @db.prepare_export_statements
+    end
+
     def do_GET(req, res)
         if req.query['bbox'] && req.query['page']
             bbox = req.query['bbox'].split(',')
             if bbox.length != 4
                 raise HTTPStatus::PreconditionFailed.new("badly formatted attribute: 'bbox'")
             end
-            @db = Database.new(database)
-            @db.prepare_export_statements
             page = req.query['page'].to_i
             res['Content-Type'] = 'Content-Type: text/xml; charset=utf-8'
             @logger.info("find_gpx_| #{req.query['bbox']}")
@@ -49,7 +53,7 @@ class ServletTrackpoints < HTTPServlet::AbstractServlet
             res.body << "  </trkseg>\n"
             res.body << " </trk>\n"
             res.body << "</gpx>\n"
-            db.close
+            @db.close
             @logger.info("exported #{total} points")
             raise HTTPStatus::OK
         else

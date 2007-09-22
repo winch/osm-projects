@@ -40,13 +40,13 @@ class ServletTrackpoints < HTTPServlet::AbstractServlet
             res.body << " <trk>\n"
             res.body << "  <trkseg>\n"
             total = 0
-            bbox[0] = bbox[0].to_f * 1000000
-            bbox[1] = bbox[1].to_f * 1000000
-            bbox[2] = bbox[2].to_f * 1000000
-            bbox[3] = bbox[3].to_f * 1000000
+            bbox[0] = bbox[0].to_f
+            bbox[1] = bbox[1].to_f
+            bbox[2] = bbox[2].to_f
+            bbox[3] = bbox[3].to_f
             @db.export_point.execute(bbox[0], bbox[2], bbox[1], bbox[3], $POINTS_PAGE, page * $POINTS_PAGE) do |result|
                 result.each do |point|
-                    res.body << "   <trkpt lat='#{point[0].to_f / 1000000}' lon='#{point[1].to_f / 1000000}'/>\n"
+                    res.body << "   <trkpt lat='#{point[0].to_f}' lon='#{point[1].to_f}'/>\n"
                     total += 1
                 end
             end

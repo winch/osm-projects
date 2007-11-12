@@ -40,32 +40,38 @@ class Listener
             @tag_id = attrs['id']
             #import node
             @importer.import_node(attrs['id'], attrs['lat'], attrs['lon'])
-        when 'segment'
-            raise 'tag within tag' if @tag.nil? == false
-            @tag = 'segment'
-            @tag_id = attrs['id']
-            #import segment
-            @importer.import_segment(attrs['id'], attrs['from'], attrs['to'])
         when 'way'
             raise 'tag within tag' if @tag.nil? == false
             @tag = 'way'
             @tag_id = attrs['id']
             @way_position = 0
-        when 'seg'
-            raise 'seg not in way' if @tag != 'way'
-            #import way segment
-            @importer.import_way(@tag_id, attrs['id'], @way_position)
+        when 'nd'
+            raise 'nd not in way' if @tag != 'way'
+            #import way node
+            @importer.import_way(@tag_id, attrs['ref'], @way_position)
             @way_position += 1
+        when 'relation'
+            raise 'tag within tag' if @tag.nil? == false
+            @tag = 'relation'
+            @tag_id = attrs['id']
+        when 'member'
+            raise 'member without parent relation' if @tag != 'relation'
+            case attrs['type']
+            when 'node'
+                @importer.import_node_relation(@tag_id, attrs['ref'], attrs['role'])
+            when 'way'
+                @importer.import_way_relation(@tag_id, attrs['ref'], attrs['role'])
+            end
         when 'tag'
             raise 'tag without parent' if @tag.nil?
             #import tag
             case @tag
             when 'node'
                 @importer.import_node_tag(@tag_id, attrs['k'], attrs['v'])
-            when 'segment'
-                @importer.import_segment_tag(@tag_id, attrs['k'], attrs['v'])
             when 'way'
                 @importer.import_way_tag(@tag_id, attrs['k'], attrs['v'])
+            when 'relation'
+                @importer.import_relation_tag(@tag_id, attrs['k'], attrs['v'])
             end
         else
             puts "Unrecognised tag <#{name}>"

@@ -25,11 +25,11 @@ class Database
     #SQLite3::Database
     attr_reader :db
     #insert prepared statement
-    attr_reader :insert_node, :insert_node_tag, :insert_segment, :insert_segment_tag,
-                :insert_way, :insert_way_tag, :insert_tag
+    attr_reader :insert_node, :insert_node_tag, :insert_way, :insert_way_tag, :insert_node_relation,
+                :insert_way_relation, :insert_relation_tag, :insert_tag
     #export preparded statement
-    attr_reader :export_way_tag, :export_way_segment, :export_segment_tag, :export_segment_node,
-                :export_node_tag, :export_node, :export_node_from_segment, :export_node_at
+    attr_reader :export_way_tag, :export_way_segment, :export_node_tag, :export_node,
+                :export_node_from_segment, :export_node_at
 
     def initialize(file_name)
         @db = SQLite3::Database.new(file_name)
@@ -39,10 +39,11 @@ class Database
     def prepare_import_statements
         @insert_node = @db.prepare("INSERT INTO node (id, lat, lon) VALUES(?, ?, ?)")
         @insert_node_tag = @db.prepare("INSERT INTO node_tag (id, tag) VALUES(?, ?)")
-        @insert_segment = @db.prepare("INSERT INTO segment (id, node_a, node_b) VALUES(?, ?, ?)")
-        @insert_segment_tag = @db.prepare("INSERT INTO segment_tag (id, tag) VALUES(?, ?)")
-        @insert_way = @db.prepare("INSERT INTO way (id, segment, position) VALUES(?, ?, ?)")
+        @insert_way = @db.prepare("INSERT INTO way (id, node, position) VALUES(?, ?, ?)")
         @insert_way_tag = @db.prepare("INSERT INTO way_tag (id, tag) VALUES(?, ?)")
+        @insert_node_relation = @db.prepare("INSERT INTO node_relation(id, node, role) VALUES(?, ?, ?)")
+        @insert_way_relation = @db.prepare("INSERT INTO way_relation(id, way, role) VALUES(?, ?, ?)")
+        @insert_relation_tag = @db.prepare("INSERT INTO relation_tag (id, tag) VALUES(?, ?)")
         @insert_tag = @db.prepare("INSERT INTO tag (k, v) VALUES(?, ?)")
     end
 
@@ -50,8 +51,6 @@ class Database
     def prepare_export_statements
         @export_way_tag = @db.prepare("select k, v from tag where id in (select tag from way_tag where id = ?)")
         @export_way_segment = @db.prepare("select segment from way where id = ? order by position")
-        @export_segment_tag = @db.prepare("select k, v from tag where id in (select tag from segment_tag where id = ?)")
-        @export_segment_node = @db.prepare("select node_a, node_b from segment where id = ?")
         @export_node_tag = @db.prepare("select k, v from tag where id in (select tag from node_tag where id = ?)")
         @export_node = @db.prepare("select lat, lon from node where id = ?")
         @export_node_from_segment = @db.prepare("select id, lat, lon from node where id = ? or id = ?")
@@ -64,16 +63,15 @@ class Database
         #import
         @insert_node.close if !@insert_node.nil?
         @insert_node_tag.close if !@insert_node_tag.nil?
-        @insert_segment.close if !@insert_segment.nil?
-        @insert_segment_tag.close if !@insert_segment_tag.nil?
         @insert_way.close if !@insert_way.nil?
         @insert_way_tag.close if !@insert_way_tag.nil?
+        @insert_node_relation.close if !@insert_node_relation.nil?
+        @insert_way_relation.close if !@insert_way_relation.nil?
+        @insert_relation_tag.close if !@insert_relation_tag.nil?
         @insert_tag.close if !@insert_tag.nil?
         #export
         @export_way_tag.close if !@export_way_tag.nil?
         @export_way_segment.close if !@export_way_segment.nil?
-        @export_segment_tag.close if !@export_segment_tag.nil?
-        @export_segment_node.close if !@export_segment_node.nil?
         @export_node_tag.close if !@export_node_tag.nil?
         @export_node.close if !@export_node.nil?
         @export_node_from_segment.close if !@export_node_from_segment.nil?
@@ -84,14 +82,16 @@ class Database
     #create database tables
     def create_tables
         #node
-        @db.execute('CREATE TABLE node(id NUMERIC, lat NUMERIC, lon NUMERIC)')
+        @db.execute('CREATE TABLE node(id INTEGER PRIMARY KEY, lat NUMERIC, lon NUMERIC)')
         @db.execute('CREATE TABLE node_tag(id NUMERIC, tag NUMERIC)')
         #segment
-        @db.execute('CREATE TABLE segment(id NUMERIC, node_a NUMERIC, node_b NUMERIC)')
-        @db.execute('CREATE TABLE segment_tag(id NUMERIC, tag NUMERIC)')
         #ways
-        @db.execute('CREATE TABLE way(id INTEGER, segment NUMERIC, position NUMERIC)')
+        @db.execute('CREATE TABLE way(id NUMERIC, node NUMERIC, position NUMERIC)')
         @db.execute('CREATE TABLE way_tag(id NUMERIC, tag NUMERIC)')
+        #relations
+        @db.execute('CREATE TABLE node_relation(id NUMERIC, node NUMERIC, role TEXT)')
+        @db.execute('CREATE TABLE way_relation(id NUMERIC, way NUMERIC, role TEXT)')
+        @db.execute('CREATE TABLE relation_tag(id NUMERIC, tag NUMERIC)')
         #tag
         @db.execute('CREATE TABLE tag(id INTEGER PRIMARY KEY, k TEXT, v TEXT)')
     end
@@ -101,9 +101,6 @@ class Database
         #node
         @db.execute('CREATE INDEX node_index on node(id)')
         @db.execute('CREATE INDEX node_tag_index on node_tag(id)')
-        #segment
-        @db.execute('CREATE INDEX segment_index on segment(id)')
-        @db.execute('CREATE INDEX segment_tag_index on segment_tag(id)')
         #way
         @db.execute('CREATE INDEX way_index on way(id)')
         @db.execute('CREATE INDEX way_tag_index on way_tag(id)')

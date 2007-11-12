@@ -24,6 +24,7 @@ require 'sqlite3'
 require File.dirname(__FILE__) + '/database.rb'
 require File.dirname(__FILE__) + '/xml_import.rb'
 require File.dirname(__FILE__) + '/xml_reader.rb'
+require File.dirname(__FILE__) + '/config.rb'
 
 if ARGV.length != 2
     puts 'import.rb planet.osm database.db'
@@ -31,6 +32,8 @@ if ARGV.length != 2
     puts 'import.rb - database.db'
     exit
 end
+
+config = Config.load(File.dirname(__FILE__) + '/config.yaml')
 
 db = Database.new(ARGV[1])
 puts 'creating tables'

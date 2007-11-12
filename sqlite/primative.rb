@@ -21,6 +21,7 @@
 #along with this program; if not, write to the Free Software
 #Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
+#cgi required for escapeHTML method used to escape tag values
 require 'cgi'
 
 #Base primative class
@@ -105,39 +106,6 @@ class Node < Primative
         else
             xml << ">\n"
             xml << super << "  </node>\n"
-        end
-        xml
-    end
-
-end
-
-#Segment data primative
-class Segment < Primative
-    #node id that the segment points from
-    attr_accessor :node_a
-    #node id that the segment points to
-    attr_accessor :node_b
-
-    def ==(other)
-        if (@node_a == other.node_a) && (@node_b == other.node_b)
-            return super(other)
-        end
-        false
-    end
-
-    #returns segment in osm xml
-    def to_xml
-        action = ' '
-        if !@action.nil?
-            action = " action=\"#{@action}\" "
-        end
-        xml = "  <segment id=\"#{@id}\"#{action}from=\"#{@node_a}\" to=\"#{@node_b}\""
-                if @tags.empty?
-            #no tags so close node
-            xml << "/>\n"
-        else
-            xml << ">\n"
-            xml << super << "  </segment>\n"
         end
         xml
     end

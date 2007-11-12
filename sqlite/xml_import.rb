@@ -20,10 +20,13 @@
 require File.dirname(__FILE__) + '/osm.rb'
 require File.dirname(__FILE__) + '/database.rb'
 
+#imports all nodes, segments and ways into database
 class Xml_import_database
 
     def initialize(database)
         @db = database
+
+        #tag ids are stored in hash to avoid cost of db lookup
         @tag_id = Hash.new()
     end
 
@@ -35,20 +38,24 @@ class Xml_import_database
         @db.insert_node_tag.execute(id, find_tag_id(k, v))
     end
 
-    def import_segment(id, from, to)
-        @db.insert_segment.execute(id, from, to)
-    end
-
-    def import_segment_tag(id, k, v)
-        @db.insert_segment_tag.execute(id, find_tag_id(k, v))
-    end
-
-    def import_way(id, segment, position)
-        @db.insert_way.execute(id, segment, position)
+    def import_way(id, node, position)
+        @db.insert_way.execute(id, node, position)
     end
 
     def import_way_tag(id, k, v)
         @db.insert_way_tag.execute(id, find_tag_id(k, v))
+    end
+
+    def import_node_relation(id, node, role)
+        @db.insert_node_relation.execute(id, node, role)
+    end
+
+    def import_way_relation(id, way, role)
+        @db.insert_way_relation.execute(id, way, role)
+    end
+
+    def import_relation_tag(id, k, v)
+        @db.insert_relation_tag.execute(id, find_tag_id(k, v))
     end
 
     private
@@ -56,11 +63,13 @@ class Xml_import_database
     #finds the id of a tag in the db and inserts tag if required
     def find_tag_id(k, v)
         id = nil
+        #search hash for id
         if @tag_id[k + v].nil?
-            #tag not in db
+            #tag not found in hash so insert into db
             @db.insert_tag.execute(k, v)
             @tag_id[k + v] = id = @db.db.last_insert_row_id
         else
+            #return id from hash
             id = @tag_id[k + v]
         end
         id
@@ -68,6 +77,7 @@ class Xml_import_database
 
 end
 
+#work in progress
 class Xml_import_osm
 
     def initialize(osm)
@@ -81,14 +91,6 @@ class Xml_import_osm
     end
 
     def import_node_tag(id, k, v)
-        #
-    end
-
-    def import_segment(id, from, to)
-        #
-    end
-
-    def import_segment_tag(id, k, v)
         #
     end
 

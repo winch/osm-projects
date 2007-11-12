@@ -28,8 +28,7 @@ class Database
     attr_reader :insert_node, :insert_node_tag, :insert_way, :insert_way_tag, :insert_node_relation,
                 :insert_way_relation, :insert_relation_tag, :insert_tag
     #export preparded statement
-    attr_reader :export_way_tag, :export_way_segment, :export_node_tag, :export_node,
-                :export_node_from_segment, :export_node_at
+    attr_reader :export_node_tag, :export_node, :export_node_at, :export_way, :export_way_tag
 
     def initialize(file_name)
         @db = SQLite3::Database.new(file_name)
@@ -49,13 +48,14 @@ class Database
 
     #prepare statements used during export and by server
     def prepare_export_statements
-        @export_way_tag = @db.prepare("select k, v from tag where id in (select tag from way_tag where id = ?)")
-        @export_way_segment = @db.prepare("select segment from way where id = ? order by position")
+        #node
         @export_node_tag = @db.prepare("select k, v from tag where id in (select tag from node_tag where id = ?)")
-        @export_node = @db.prepare("select lat, lon from node where id = ?")
-        @export_node_from_segment = @db.prepare("select id, lat, lon from node where id = ? or id = ?")
+        @export_node = @db.prepare("select id, lat, lon from node where id = ?")
         @export_node_at =
             @db.prepare("select id, lat, lon from node where (lon > ? and lon < ?) and (lat > ? and lat < ?)")
+        #way
+        @export_way = @db.prepare("select node from way where id = ? order by position")
+        @export_way_tag = @db.prepare("select k, v from tag where id in (select tag from way_tag where id = ?)")
     end
 
     #close database and any existing prepared statements
@@ -70,12 +70,11 @@ class Database
         @insert_relation_tag.close if !@insert_relation_tag.nil?
         @insert_tag.close if !@insert_tag.nil?
         #export
-        @export_way_tag.close if !@export_way_tag.nil?
-        @export_way_segment.close if !@export_way_segment.nil?
         @export_node_tag.close if !@export_node_tag.nil?
         @export_node.close if !@export_node.nil?
-        @export_node_from_segment.close if !@export_node_from_segment.nil?
         @export_node_at.close if !@export_node_at.nil?
+        @export_way.close if !@export_way.nil?
+        @export_way_tag.close if !@export_way_tag.nil?
         @db.close
     end
 

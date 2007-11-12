@@ -36,98 +36,14 @@ class Osm
         @db = db
     end
 
-    #Populate @way with all ways that match where_clause
-    def find_way_where(where_clause)
-        @db.db.execute("select id from way_tag where " + where_clause) do |way|
-            process_way(way)
-        end
-    end
-
-    #Populate @way with all ways that reference @segment
-    def find_way_from_segment
-        s = @segment.keys.join(',')
-        @db.db.execute("select id from way where segment in (#{s})") do |way|
-            process_way(way)
-        end
-    end
-
-    #Populate @segment with all segments that match where_clause
-    def find_segment_where(where_clause)
-        @db.db.execute("select id from segment_tag where " + where_clause) do |segment|
-            segment = segment[0]
-            if @segment[segment].nil?
-                #add segment to @segment
-                @segment[segment] = Segment.new
-                #find segment attributes
-                @segment[segment].id = segment
-                @db.export_segment_node.execute(segment) do |result|
-                    result.each do |segment_attr|
-                        @segment[segment].node_a = segment_attr[0]
-                        @segment[segment].node_b = segment_attr[1]
-                    end
-                end
-                #add tags
-                get_segment_tag(segment)
-            end
-        end
-    end
-
-    #Populate @segments with all segments referenced in @way
-    def find_segment_from_way
-        @way.each_value do |way|
-            way.segments.each do |segment|
-                @db.export_segment_node.execute(segment) do |result|
-                    process_segment(segment, result)
-                end
-            end
-        end
-    end
-
-    #Populate @segment with all segments that refrence @node
-    def find_segment_from_node
-        n = @node.keys.join(',')
-        @db.db.execute("select id, node_a, node_b from segment where node_a in (#{n}) or node_b in (#{n})") do |segment|
-            segment = segment[0]
-            if @segment[segment].nil?
-                #add segment to @segment
-                @segment[segment] = Segment.new
-                #find segment attributes
-                @segment[segment].id = segment
-                @db.export_segment_node.execute(segment) do |result|
-                    result.each do |segment_attr|
-                        @segment[segment].node_a = segment_attr[0]
-                        @segment[segment].node_b = segment_attr[1]
-                    end
-                end
-                #add tags
-                get_segment_tag(segment)
-            end
-        end
-    end
+    ######################
+    # find node methods  #
+    ######################
 
     #Populate @node with all nodes that match where_clause
     def find_node_where(where_clause)
         @db.db.execute("select id from node_tag where " + where_clause) do |node|
-            if @node[node[0]].nil?
-                @node[node[0]] = Node.new(0,0)
-                #find node attributes
-                @node[node[0]].id = node[0]
-                @db.export_node.execute(node[0]) do |result|
-                    result.each do |node_attr|
-                        @node[node[0]].lat = node_attr[0]
-                        @node[node[0]].lon = node_attr[1]
-                    end
-                end
-                #add tags
-                get_node_tag(node)
-            end
-        end
-    end
-
-    #Populate @node with all nodes referenced by @segment
-    def find_node_from_segment
-        @segment.each_value do |segment|
-            @db.export_node_from_segment.execute(segment.node_a, segment.node_b) do |result|
+            @db.export_node.execute(node) do |result|
                 process_node(result)
             end
         end
@@ -140,9 +56,39 @@ class Osm
         end
     end
 
+    #populate @node with all nodes in @way
+    def find_node_from_way
+        @way.each_value do |way|
+            way.nodes.each do |node|
+                @db.export_node.execute(node) do |result|
+                    process_node(result)
+                end
+            end
+        end
+    end
+
+    #####################
+    # find way methods  #
+    #####################
+
+    #Populate @way with all ways that match where_clause
+    def find_way_where(where_clause)
+        @db.db.execute("select id from way_tag where " + where_clause) do |way|
+            process_way(way)
+        end
+    end
+
+    #populate @way with all ways referenced by @node
+    def find_way_from_node
+        n = @node.keys.join(',')
+        @db.db.execute("SELECT id FROM way WHERE node IN(#{n})") do |way|
+            process_way(way)
+        end
+    end
+
     def to_xml(stream)
         stream.write('<?xml version="1.0" encoding="UTF-8"?>' + "\n")
-        stream.write("<osm version=\"0.4\" generator=\"export.rb v#{$VERSION}\">\n")
+        stream.write("<osm version=\"0.5\" generator=\"export.rb v#{$VERSION}\">\n")
         #node
         @node.each do |id, node|
             stream.write(node.to_xml)
@@ -171,8 +117,8 @@ class Osm
                 result.each { |tag| item.tags.push(tag) }
             end
             #find way segments
-            @db.export_way_segment.execute(way) do |result|
-                result.each { |segment| item.segments.push(segment[0]) }
+            @db.export_way.execute(way) do |result|
+                result.each { |node| item.nodes.push(node[0]) }
             end
             @way[way] = item
         end
@@ -192,27 +138,6 @@ class Osm
                 @node[node[0]].id = node[0]
                 #add tags
                 get_node_tag(node)
-            end
-        end
-    end
-
-    def get_segment_tag(segment)
-        @db.export_segment_tag.execute(segment) do |result|
-            result.each { |tag| @segment[segment].tags.push(tag) }
-        end
-    end
-
-    def process_segment(segment, result)
-        result.each do |nodes|
-            #add segment to @segment
-            if @segment[segment].nil?
-                item = Segment.new
-                item.id = segment
-                item.node_a = nodes[0]
-                item.node_b = nodes[1]
-                @segment[segment] = item
-                #add tags
-                get_segment_tag(segment)
             end
         end
     end

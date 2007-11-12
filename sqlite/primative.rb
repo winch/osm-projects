@@ -115,15 +115,15 @@ end
 #way data primative
 class Way < Primative
     #list of segments that make up the way
-    attr_accessor :segments
+    attr_accessor :nodes
 
     def initialize
         super
-        @segments = Array.new
+        @nodes = Array.new
     end
 
     def ==(other)
-        if (@segments == other.segments)
+        if (@nodes == other.nodes)
             return super(other)
         end
         false
@@ -136,8 +136,8 @@ class Way < Primative
             action = " action=\"#{@action}\""
         end
         xml = "  <way id=\"#{id}\"#{action}>\n"
-        @segments.each do |segment|
-            xml << "    <seg id=\"#{segment}\"/>\n"
+        @nodes.each do |node|
+            xml << "    <nd ref=\"#{node}\"/>\n"
         end
         xml << super << "  </way>\n"
     end

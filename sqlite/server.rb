@@ -28,7 +28,7 @@ require File.dirname(__FILE__) + '/database.rb'
 require File.dirname(__FILE__) + '/osm.rb'
 
 $VERSION = '0.1'
-$API_VERSION = '0.4'
+$API_VERSION = '0.5'
 
 if ARGV.length != 2
     puts 'server.rb port database.db'
@@ -68,14 +68,10 @@ class MapServlet < HTTPServlet::AbstractServlet
             output = StringIO.new
             @logger.info('find_node_at | ' + req.query['bbox'])
             osm.find_node_at(bbox)
-            @logger.info('find_segment_from_node')
-            osm.find_segment_from_node
-            @logger.info('find_way_from_segment')
-            osm.find_way_from_segment
-            @logger.info('find_segment_from_way')
-            osm.find_segment_from_way
-            @logger.info('find_node_from_segment')
-            osm.find_node_from_segment
+            @logger.info('find way from node')
+            osm.find_way_from_node
+            @logger.info('find node from way')
+            osm.find_node_from_way
             @logger.info('generating xml')
             osm.to_xml(output)
             output.rewind

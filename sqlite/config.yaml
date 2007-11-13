@@ -2,5 +2,5 @@
 #--
 # $Id$
 
-api_server: http://www.openstreetmap.org/api/0.4
+api_server: http://api.openstreetmap.org/api/0.5
 

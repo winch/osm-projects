@@ -28,11 +28,14 @@ class Osm
     attr_accessor :segment
     #hash containing Way objects. Way id is used as key
     attr_accessor :way
+    #hash containing relation objects. Relation id is used as key
+    attr_accessor :relation
 
     def initialize(db)
         @node = Hash.new
         @segment = Hash.new
         @way = Hash.new
+        @relation = Hash.new
         @db = db
     end
 
@@ -86,25 +89,77 @@ class Osm
         end
     end
 
+    ##########################
+    # find relation methods  #
+    ##########################
+
+    #populate @relation with all relations reference by @node or @way
+    def find_relation
+        #node relations
+        n = @node.keys.join(',')
+        @db.db.execute("SELECT id FROM node_relation WHERE node IN(#{n})") do |relation|
+            process_relation(relation)
+        end
+        #way relations
+        w = @way.keys.join(',')
+        @db.db.execute("SELECT id FROM way_relation WHERE way IN(#{w})") do |relation|
+            process_relation(relation)
+        end
+    end
+
+    ###########################
+    # xml generation methods  #
+    ###########################
+
     def to_xml(stream)
         stream.write('<?xml version="1.0" encoding="UTF-8"?>' + "\n")
         stream.write("<osm version=\"0.5\" generator=\"export.rb v#{$VERSION}\">\n")
         #node
-        @node.each do |id, node|
+        @node.each_value do |node|
             stream.write(node.to_xml)
         end
         #segment
-        @segment.each do |id, segment|
+        @segment.each_value do |segment|
             stream.write(segment.to_xml)
         end
         #way
-        @way.each do |id, way|
+        @way.each_value do |way|
             stream.write(way.to_xml)
+        end
+        #relation
+        @relation.each_value do |relation|
+            stream.write(relation.to_xml)
         end
         stream.write("</osm>\n")
     end
 
+    ####################
+    # private methods  #
+    ####################
+
     private
+
+    def process_relation(relation)
+        relation = relation[0]
+        if @relation[relation].nil?
+            #add relation to relation
+            item = Relation.new
+            item.id = relation
+            #add tags
+            @db.export_relation_tag.execute(relation) do |result|
+                result.each { |tag| item.tags.push(tag) }
+            end
+            #find node members
+            @db.export_node_relation.execute(relation) do |result|
+                result.each { |member| item.members.push(Member.new('node', member[0], member[1])) }
+            end
+            @db.export_way_relation.execute(relation) do |result|
+                result.each { |member| item.members.push(Member.new('way', member[0], member[1])) }
+            end
+            #find way members
+            @relation[relation] = item
+        end
+    end
 
     def process_way(way)
         way = way[0]

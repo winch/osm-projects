@@ -141,5 +141,55 @@ class Way < Primative
         end
         xml << super << "  </way>\n"
     end
+end
 
+#relation data primative
+class Relation < Primative
+    #list of nodes
+    attr_accessor :members
+
+    def initialize
+        super
+        @members = Array.new
+    end
+
+    def ==(other)
+        if (@members == other.members)
+            return super(other)
+        end
+        false
+    end
+
+    #returns relation in osm xml
+    def to_xml
+        action = ''
+        if !@action.nil?
+            action = " action=\"#{@action}\""
+        end
+        xml = "  <relation id=\"#{id}\"#{action}>\n"
+        @members.each do |member|
+            xml << "<member type=\"#{member.type}\" ref=\"#{member.ref}\" role=\"#{member.role}\" />\n"
+        end
+        xml << super << "  </relation>\n"
+    end
+end
+
+#relation member data primative
+class Member
+    attr_accessor :type
+    attr_accessor :ref
+    attr_accessor :role
+
+    def initialize(type, ref, role)
+        @type = type
+        @ref = ref
+        @role = role
+    end
+
+    def ==(other)
+        if (@type == other.type) && (@ref == other.ref) && (@role == other.role)
+            return true
+        end
+        false
+    end
 end

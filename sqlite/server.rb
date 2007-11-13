@@ -72,12 +72,14 @@ class MapServlet < HTTPServlet::AbstractServlet
             osm.find_way_from_node
             @logger.info('find node from way')
             osm.find_node_from_way
+            @logger.info('find relation')
+            osm.find_relation
             @logger.info('generating xml')
             osm.to_xml(output)
             output.rewind
             res.body = output.read
             output.close
-            @logger.info("exported #{osm.node.length} nodes, #{osm.segment.length} segments and #{osm.way.length} ways")
+            @logger.info("exported #{osm.node.length} nodes, #{osm.way.length} ways and #{osm.relation.length} relations.")
             raise HTTPStatus::OK
         else
             raise HTTPStatus::PreconditionFailed.new("missing attribute: 'bbox'")

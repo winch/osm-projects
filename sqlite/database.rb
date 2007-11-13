@@ -28,7 +28,8 @@ class Database
     attr_reader :insert_node, :insert_node_tag, :insert_way, :insert_way_tag, :insert_node_relation,
                 :insert_way_relation, :insert_relation_tag, :insert_tag
     #export preparded statement
-    attr_reader :export_node_tag, :export_node, :export_node_at, :export_way, :export_way_tag
+    attr_reader :export_node_tag, :export_node, :export_node_at, :export_way, :export_way_tag,
+                :export_node_relation, :export_way_relation, :export_relation_tag
 
     def initialize(file_name)
         @db = SQLite3::Database.new(file_name)
@@ -56,6 +57,10 @@ class Database
         #way
         @export_way = @db.prepare("select node from way where id = ? order by position")
         @export_way_tag = @db.prepare("select k, v from tag where id in (select tag from way_tag where id = ?)")
+        #relation
+        @export_node_relation = @db.prepare("select node, role from node_relation where id = ?")
+        @export_way_relation = @db.prepare("select way, role from way_relation where id = ?")
+        @export_relation_tag = @db.prepare("select k, v from tag where id in (select tag from relation_tag where id = ?)")
     end
 
     #close database and any existing prepared statements
@@ -75,6 +80,9 @@ class Database
         @export_node_at.close if !@export_node_at.nil?
         @export_way.close if !@export_way.nil?
         @export_way_tag.close if !@export_way_tag.nil?
+        @export_node_relation.close if !@export_node_relation.nil?
+        @export_way_relation.close if !@export_way_relation.nil?
+        @export_relation_tag.close if !@export_relation_tag.nil?
         @db.close
     end
 
@@ -98,13 +106,14 @@ class Database
     #create database indexes
     def create_index
         #node
-        @db.execute('CREATE INDEX node_index on node(id)')
-        @db.execute('CREATE INDEX node_tag_index on node_tag(id)')
+        @db.execute('CREATE INDEX node_index ON node(id)')
+        @db.execute('CREATE INDEX node_tag_index ON node_tag(id)')
         #way
-        @db.execute('CREATE INDEX way_index on way(id)')
-        @db.execute('CREATE INDEX way_tag_index on way_tag(id)')
+        @db.execute('CREATE INDEX way_index ON way(id)')
+        @db.execute('CREATE INDEX way_node_index ON way(node')
+        @db.execute('CREATE INDEX way_tag_index ON way_tag(id)')
         #tag
-        @db.execute('CREATE INDEX tag_index on tag(id)')
+        @db.execute('CREATE INDEX tag_index ON tag(id)')
     end
 
 end

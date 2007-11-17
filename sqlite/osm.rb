@@ -22,6 +22,8 @@ require File.dirname(__FILE__) + '/primative.rb'
 #Container for Primative types.
 #Methods to extract Primative types from database
 class Osm
+    #for queries that use IN(list) split the list into chunks of @@chunk_size
+    @@chunk_size = 10000
     #hash containing Node objects. Node id is used as key
     attr_accessor :node
     #hash containing Segment objects. Segment id is used as key
@@ -83,9 +85,15 @@ class Osm
 
     #populate @way with all ways referenced by @node
     def find_way_from_node
-        n = @node.keys.join(',')
-        @db.db.execute("SELECT id FROM way WHERE node IN(#{n})") do |way|
-            process_way(way)
+        node_list = @node.keys
+        #split node list into chunks of nodes and process
+        i = 0
+        while node = node_list[i * @@chunk_size..i + 1 * @@chunk_size]
+            n = node.join(',')
+            @db.db.execute("SELECT id FROM way WHERE node IN(#{n})") do |way|
+                process_way(way)
+            end
+            i += 1
         end
     end
 
@@ -96,14 +104,26 @@ class Osm
     #populate @relation with all relations reference by @node or @way
     def find_relation
         #node relations
-        n = @node.keys.join(',')
-        @db.db.execute("SELECT id FROM node_relation WHERE node IN(#{n})") do |relation|
-            process_relation(relation)
+        node_list = @node.keys
+        #split node list into chunks of nodes and process
+        i = 0
+        while node = node_list[i * @@chunk_size..i + 1 * @@chunk_size]
+            n = node.join(',')
+            @db.db.execute("SELECT id FROM node_relation WHERE node IN(#{n})") do |relation|
+                process_relation(relation)
+            end
+            i += 1
         end
         #way relations
-        w = @way.keys.join(',')
-        @db.db.execute("SELECT id FROM way_relation WHERE way IN(#{w})") do |relation|
-            process_relation(relation)
+        way_list = @way.keys
+        #split way list into chunks of ways and process
+        i = 0
+        while way = way_list[i * @@chunk_size..i + 1 * @@chunk_size]
+            w = way.join(',')
+            @db.db.execute("SELECT id FROM way_relation WHERE way IN(#{w})") do |relation|
+                process_relation(relation)
+            end
+            i += 1
         end
     end
 

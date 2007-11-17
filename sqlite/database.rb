@@ -110,7 +110,7 @@ class Database
         @db.execute('CREATE INDEX node_tag_index ON node_tag(id)')
         #way
         @db.execute('CREATE INDEX way_index ON way(id)')
-        @db.execute('CREATE INDEX way_node_index ON way(node')
+        @db.execute('CREATE INDEX way_node_index ON way(node)')
         @db.execute('CREATE INDEX way_tag_index ON way_tag(id)')
         #tag
         @db.execute('CREATE INDEX tag_index ON tag(id)')

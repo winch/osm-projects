@@ -88,7 +88,7 @@ class Osm
         node_list = @node.keys
         #split node list into chunks of nodes and process
         i = 0
-        while node = node_list[i * @@chunk_size..i + 1 * @@chunk_size]
+        while node = node_list[i * @@chunk_size..(i + 1) * @@chunk_size]
             n = node.join(',')
             @db.db.execute("SELECT id FROM way WHERE node IN(#{n})") do |way|
                 process_way(way)
@@ -107,7 +107,7 @@ class Osm
         node_list = @node.keys
         #split node list into chunks of nodes and process
         i = 0
-        while node = node_list[i * @@chunk_size..i + 1 * @@chunk_size]
+        while node = node_list[i * @@chunk_size..(i + 1) * @@chunk_size]
             n = node.join(',')
             @db.db.execute("SELECT id FROM node_relation WHERE node IN(#{n})") do |relation|
                 process_relation(relation)
@@ -118,7 +118,7 @@ class Osm
         way_list = @way.keys
         #split way list into chunks of ways and process
         i = 0
-        while way = way_list[i * @@chunk_size..i + 1 * @@chunk_size]
+         while way = way_list[i * @@chunk_size..(i + 1) * @@chunk_size]
             w = way.join(',')
             @db.db.execute("SELECT id FROM way_relation WHERE way IN(#{w})") do |relation|
                 process_relation(relation)

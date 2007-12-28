@@ -3,4 +3,4 @@
 # $Id$
 
 api_server: http://api.openstreetmap.org/api/0.5
-
+database: sqlite

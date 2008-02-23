@@ -21,6 +21,7 @@
 
 require 'sqlite3'
 require 'rexml/document'
+require 'digest/md5'
 
 require File.dirname(__FILE__) + '/database.rb'
 require File.dirname(__FILE__) + '/listener.rb'
@@ -34,24 +35,32 @@ db = Database.new(ARGV[0])
 db.create_tables()
 db.prepare_import_statements()
 
-db.db.execute("BEGIN")
-
 listener = Listener.new(db)
 
 total_points = 0
 points = 0
 #import each gpx file ignoring ARGV[0]
 ARGV[1..ARGV.length].each do |gpx|
-    puts "importing #{gpx}"
-    File.open(gpx) do |gpx_file|
-        REXML::Document.parse_stream(gpx_file, listener)
+    #check for file in db
+    md5 = Digest::MD5.hexdigest(File.read(gpx))
+    db.check_md5.execute(md5) do |result|
+        if result.next[0] == "0"
+            #file not found, import
+            puts "importing #{gpx}"
+            db.insert_md5.execute(md5)
+            File.open(gpx) do |gpx_file|
+                REXML::Document.parse_stream(gpx_file, listener)
+            end
+            puts "imported #{listener.count} points"
+        else
+            #file already in db
+            puts "#{gpx} already imported"
+        end
     end
-    puts "imported #{listener.count} points"
     total_points += listener.count
     listener.zero_count
 end
 
-puts "imported a total of #{total_points} points"
+puts "\nimported a total of #{total_points} points"
 
-db.db.execute("COMMIT")
 db.close

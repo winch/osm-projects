@@ -25,9 +25,10 @@ include WEBrick
 
 require File.dirname(__FILE__) + '/database.rb'
 require File.dirname(__FILE__) + '/servlet_trackpoints.rb'
+require File.dirname(__FILE__) + '/servlet_map.rb'
 
 $VERSION = '0.1'
-$API_VERSION = '0.4'
+$API_VERSION = '0.5'
 $POINTS_PAGE = 5000
 
 if ARGV.length != 2
@@ -37,6 +38,7 @@ end
 
 server = HTTPServer.new(:Port => ARGV[0].to_i)
 server.mount('/api/' + $API_VERSION + '/trackpoints', ServletTrackpoints, ARGV[1])
+server.mount('/api/' + $API_VERSION + '/map', ServletMap, ARGV[1])
 
 trap ("INT") do
     server.shutdown

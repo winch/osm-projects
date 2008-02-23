@@ -25,21 +25,24 @@ class Database
     #SQLite3::Database
     attr_reader :db
 
-    #insert prepared statement
-    attr_reader :insert_point
+    #insert prepared statements
+    attr_reader :insert_point, :check_md5, :insert_md5
 
     #export prepared statement
-    attr_reader :export_point
+    attr_reader :export_point_page, :export_point_all
 
     #prepare statements used during import
     def prepare_import_statements
         @insert_point = @db.prepare("INSERT INTO point (lat, lon) VALUES(?, ?)")
+        @check_md5 = db.prepare("SELECT COUNT(*) FROM file WHERE md5 = ?")
+        @insert_md5 = db.prepare("INSERT INTO file (md5) VALUES(?)")
     end
 
     #prepare statements used during export
     def prepare_export_statements
-        @export_point =
+        @export_point_page =
         @db.prepare("select lat, lon from point where (lon between ? and ?) and (lat between ? and ?) limit ? offset ?")
+        @export_point_all = @db.prepare("select lat, lon from point where (lon between ? and ?) and (lat between ? and ?) ")
     end
 
     def initialize(file_name)
@@ -49,14 +52,18 @@ class Database
     #create database tables
     def create_tables
         @db.execute('CREATE TABLE IF NOT EXISTS point(lat NUMERIC, lon NUMERIC)')
+        @db.execute('CREATE TABLE IF NOT EXISTS file(md5 TEXT)')
     end
 
     #close database and any prepared statements
     def close
         #import
         @insert_point.close if !@insert_point.nil?
+        @check_md5.close if !@check_md5.nil?
+        @insert_md5.close if !@insert_md5.nil?
         #export
-        @export_point.close if !@export_point.nil?
+        @export_point_page.close if !@export_point_page.nil?
+        @export_point_all.close if !@export_point_all.nil?
         @db.close
     end
 

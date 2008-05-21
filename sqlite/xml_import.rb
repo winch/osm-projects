@@ -25,6 +25,10 @@ class Xml_import_database
 
     def initialize(database)
         @db = database
+        @node_count = 0
+        @way_count = 0
+        @relation_count = 0
+        @tag_count = 0
 
         #tag ids are stored in hash to avoid cost of db lookup
         @tag_id = Hash.new()
@@ -32,6 +36,8 @@ class Xml_import_database
 
     def import_node(id, lat, lon)
         @db.insert_node.execute(id, lat, lon)
+        @node_count += 1
+        puts "nodes #{@node_count}" if @node_count % 10000 == 0
     end
 
     def import_node_tag(id, k, v)
@@ -40,6 +46,8 @@ class Xml_import_database
 
     def import_way(id, node, position)
         @db.insert_way.execute(id, node, position)
+        @way_count += 1
+        puts "ways #{@way_count}" if @way_count % 10000 == 0
     end
 
     def import_way_tag(id, k, v)
@@ -48,10 +56,13 @@ class Xml_import_database
 
     def import_node_relation(id, node, role)
         @db.insert_node_relation.execute(id, node, role)
+        @relation_count += 1
     end
 
     def import_way_relation(id, way, role)
         @db.insert_way_relation.execute(id, way, role)
+        @relation_count += 1
+        puts "relations #{@relation_count}" if @relation_count % 10000 == 0
     end
 
     def import_relation_tag(id, k, v)
@@ -68,6 +79,8 @@ class Xml_import_database
             #tag not found in hash so insert into db
             @db.insert_tag.execute(k, v)
             @tag_id[k + v] = id = @db.db.last_insert_row_id
+            @tag_count += 1
+            puts "tags #{@tag_count}" if @tag_count % 10000 == 0
         else
             #return id from hash
             id = @tag_id[k + v]

@@ -13,6 +13,7 @@ require File.dirname(__FILE__) + '/database.rb'
 require File.dirname(__FILE__) + '/servlet_trackpoints.rb'
 require File.dirname(__FILE__) + '/servlet_map.rb'
 require File.dirname(__FILE__) + '/servlet_node.rb'
+require File.dirname(__FILE__) + '/servlet_way.rb'
 require File.dirname(__FILE__) + '/xml_listener.rb'
 require File.dirname(__FILE__) + '/primative.rb'
 
@@ -32,6 +33,7 @@ server = HTTPServer.new(:Port => ARGV[0].to_i)
 server.mount('/api/' + $API_VERSION + '/trackpoints', ServletTrackpoints, ARGV[1])
 server.mount('/api/' + $API_VERSION + '/map', ServletMap, ARGV[1])
 server.mount('/api/' + $API_VERSION + '/node', ServletNode, ARGV[1])
+server.mount('/api/' + $API_VERSION + '/way', ServletWay, ARGV[1])
 
 trap ("INT") do
     server.shutdown

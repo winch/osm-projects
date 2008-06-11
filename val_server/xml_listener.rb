@@ -9,7 +9,6 @@ class XMLListener
         @primative = nil
         @tag = nil
         @tag_id = nil
-        @way_position = 0
     end
 
     def tag_start(name, attrs)
@@ -29,12 +28,12 @@ class XMLListener
             raise "Looking for #{@primative_type} but found way" if @primative_type != 'way'
             @tag = 'way'
             @tag_id = attrs['id']
-            @way_position = 0
+            @primative = Way.new()
+            @primative.id = attrs['id']
         when 'nd'
             raise 'node not in way' if @tag != 'way'
             #import way node
-            #@importer.import_way(@tag_id, attrs['ref'], @way_position)
-            @way_position += 1
+            @primative.nodes.push(attrs['ref'])
         when 'relation'
             raise 'primative within primative' if @tag.nil? == false
             raise "Looking for #{@primative_type} but found relation" if @primative_type != 'relation'

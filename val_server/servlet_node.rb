@@ -38,11 +38,10 @@ class ServletNode < HTTPServlet::AbstractServlet
             @db.insert_node_tag(node.id, tag)
         end
         
-        #return if create
     end
     
     def do_DELETE(req, res)
-        #
+        @db.remove_node(req.path.split('/')[-1])
     end
     
 end

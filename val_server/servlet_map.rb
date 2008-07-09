@@ -20,9 +20,17 @@ class ServletMap < HTTPServlet::AbstractServlet
             
             #find nodes
             @db.find_node_at(bbox) do |node|
+                @db.find_node_tag(node.id) do |tag|
+                    node.tags.push(tag)
+                end
                 @node.push(node)
-                
             end
+            
+            #find ways
+            
+            #find way nodes
+            
+            #find relations
             
             #output xml
             res.body = "<?xml version='1.0' encoding='UTF-8'?>\n"

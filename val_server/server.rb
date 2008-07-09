@@ -12,7 +12,12 @@ include WEBrick
 $VERSION = '0.1'
 $API_VERSION = '0.5'
 
+require File.dirname(__FILE__) + '/query.rb'
+require File.dirname(__FILE__) + '/query_node.rb'
+require File.dirname(__FILE__) + '/query_way.rb'
 require File.dirname(__FILE__) + '/database.rb'
+require File.dirname(__FILE__) + '/database_node.rb'
+require File.dirname(__FILE__) + '/database_way.rb'
 require File.dirname(__FILE__) + '/database_map.rb'
 require File.dirname(__FILE__) + '/servlet_trackpoints.rb'
 require File.dirname(__FILE__) + '/servlet_map.rb'

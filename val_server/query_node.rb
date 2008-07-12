@@ -1,13 +1,24 @@
 
 module QueryNode
 
+    #find node
+    def find_node(id)
+        primative = nil
+        @db.execute('SELECT lat, lon FROM node WHERE id = ?', id) do |node|
+            primative = Node.new(node[0], node[1])
+            primative.id = id
+            find_node_tag(primative.id) do |tag|
+                primative.tags.push(tag)
+            end
+        end
+        return primative
+    end
+
     #find all nodes in bbox
     def find_node_at(bbox)
-        @db.execute('SELECT id, lat, lon FROM node WHERE lat < ? and lat > ? and
+        @db.execute('SELECT id FROM node WHERE lat < ? and lat > ? and
                     lon > ? and lon < ?', bbox[3], bbox[1], bbox[0], bbox[2]) do |node|
-            primative = Node.new(node[1], node[2])
-            primative.id = node[0]
-            yield(primative)
+            yield(node[0])
         end
     end
 
@@ -38,7 +49,7 @@ module QueryNode
         @db.execute('DELETE FROM node_tag WHERE node = ?', node)
     end
     
-    # find all tags belongin to a node
+    # find all tags belonging to a node
     def find_node_tag(node)
         @db.execute('SELECT tag.k, tag.v FROM node_tag INNER JOIN tag ON node_tag.tag = tag.id WHERE node_tag.node = ?', node) do |tag|
             yield tag

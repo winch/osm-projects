@@ -29,10 +29,6 @@ class Database
         @db.execute('CREATE TABLE IF NOT EXISTS way_tag(way NUMERIC, tag NUMERIC)')
     end
     
-    def last_insert_id
-        @db.last_insert_row_id
-    end
-    
     def close
         @db.close
     end

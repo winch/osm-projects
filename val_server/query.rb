@@ -15,6 +15,11 @@ module Query
         end
         id
     end
+    
+    # get id of last inserted row
+    def last_insert_id
+        @db.last_insert_row_id
+    end
 
 end
 

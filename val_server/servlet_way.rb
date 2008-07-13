@@ -5,7 +5,7 @@ class ServletWay < HTTPServlet::AbstractServlet
 
     def initialize(config, database)
         super
-        @db = Database.new(database)
+        @db = DatabaseWay.new(database)
     end
     
     def do_GET(req, res)

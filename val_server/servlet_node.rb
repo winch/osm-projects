@@ -5,7 +5,7 @@ class ServletNode < HTTPServlet::AbstractServlet
 
     def initialize(config, database)
         super
-        @db = Database.new(database)
+        @db = DatabaseNode.new(database)
     end
     
     def do_GET(req, res)

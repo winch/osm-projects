@@ -1,16 +1,17 @@
 #!/usr/bin/env ruby
 
-#--
-# $Id$
+$VERSION = '0.1'
+$API_VERSION = '0.5'
 
+if ARGV.length != 2
+    puts 'server.rb port database.db'
+    exit
+end
 
 require 'sqlite3'
 require 'rexml/document'
 require 'webrick'
 include WEBrick
-
-$VERSION = '0.1'
-$API_VERSION = '0.5'
 
 require File.dirname(__FILE__) + '/query.rb'
 require File.dirname(__FILE__) + '/query_node.rb'
@@ -25,11 +26,6 @@ require File.dirname(__FILE__) + '/servlet_node.rb'
 require File.dirname(__FILE__) + '/servlet_way.rb'
 require File.dirname(__FILE__) + '/xml_listener.rb'
 require File.dirname(__FILE__) + '/primative.rb'
-
-if ARGV.length != 2
-    puts 'server.rb port database.db'
-    exit
-end
 
 db = Database.new(ARGV[1])
 db.create_tables

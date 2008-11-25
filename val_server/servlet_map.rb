@@ -21,6 +21,7 @@ class ServletMap < HTTPServlet::AbstractServlet
             #xml header
             res.body = "<?xml version='1.0' encoding='UTF-8'?>\n"
             res.body << "<osm version='#{$API_VERSION}' generator='server.rb #{$VERSION}'>"
+            res.body << "<bounds minlat='#{bbox[1]}' minlon='#{bbox[0]}' maxlat='#{bbox[3]}' maxlon='#{bbox[2]}' origin='server.rb' />"
             
             #find nodes
             @db.find_node_at(bbox) do |node|

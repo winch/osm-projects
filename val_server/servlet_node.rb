@@ -19,7 +19,7 @@ class ServletNode < HTTPServlet::AbstractServlet
         action = req.path.split('/')[-1]
         
         #parse xml
-        listner = XMLListener.new('node')
+        listner = XMLListener.new('node', nil)
         REXML::Document.parse_stream(req.body, listner)
         node = listner.primative
         

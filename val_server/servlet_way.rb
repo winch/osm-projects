@@ -19,7 +19,7 @@ class ServletWay < HTTPServlet::AbstractServlet
         action = req.path.split('/')[-1]
         
         #parse xml
-        listner = XMLListener.new('way')
+        listner = XMLListener.new('way', nil)
         REXML::Document.parse_stream(req.body, listner)
         way = listner.primative
         

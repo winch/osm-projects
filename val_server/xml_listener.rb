@@ -3,9 +3,9 @@ class XMLListener
 
     attr_reader :primative
 
-    def initialize(type)
+    def initialize(type, found)
         @primative_type = type
-        
+        @found = found
         @primative = nil
         @tag = nil
         @tag_id = nil
@@ -18,14 +18,14 @@ class XMLListener
         when 'node'
             #set current tag
             raise 'primative within primative' if @tag.nil? == false
-            raise "Looking for #{@primative_type} but found node" if @primative_type != 'node'
+            raise "Looking for #{@primative_type} but found node" if @primative_type != 'node' && @primative_type.nil? == false
             @tag = 'node'
             @tag_id = attrs['id']
             @primative = Node.new(attrs['lat'], attrs['lon'])
             @primative.id = attrs['id']
         when 'way'
             raise 'primative within primative' if @tag.nil? == false
-            raise "Looking for #{@primative_type} but found way" if @primative_type != 'way'
+            raise "Looking for #{@primative_type} but found way" if @primative_type != 'way' && @primative_type.nil? == false
             @tag = 'way'
             @tag_id = attrs['id']
             @primative = Way.new()
@@ -36,11 +36,12 @@ class XMLListener
             @primative.nodes.push(attrs['ref'])
         when 'relation'
             raise 'primative within primative' if @tag.nil? == false
-            raise "Looking for #{@primative_type} but found relation" if @primative_type != 'relation'
-            @primative = 'relation'
+            raise "Looking for #{@primative_type} but found relation" if @primative_type != 'relation'  && @primative_type.nil? == false
+            @tag = 'relation'
+            @primative =  Relation.new()
             @primative_id = attrs['id']
         when 'member'
-            raise 'member without parent relation' if @tag != 'relation'
+            raise "member #{attrs} without parent relation" if @tag != 'relation'
             case attrs['type']
             when 'node'
                 #@importer.import_node_relation(@tag_id, attrs['ref'], attrs['role'])
@@ -57,7 +58,10 @@ class XMLListener
     end
 
     def tag_end(name)
-        @tag = nil if name == @tag
+        if name == @tag
+            @tag = nil
+            @found.call(@primative) if @found.nil? == false
+        end
     end
 
     def method_missing(methodname, *args)

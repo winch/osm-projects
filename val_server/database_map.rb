@@ -1,6 +1,7 @@
 
 class DatabaseMap < Database
 
+    include Query
     include QueryNode
     include QueryWay
 

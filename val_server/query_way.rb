@@ -21,7 +21,7 @@ module QueryWay
     def insert_way(way, nodes)
         position = 0
         nodes.each do |node|
-            if way == nil
+            if way.nil?
                 @db.execute('INSERT INTO way DEFAULT VALUES')
                 way = @db.last_insert_row_id
             end

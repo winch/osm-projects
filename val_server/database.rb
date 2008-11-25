@@ -8,6 +8,8 @@ class Database
     
     def initialize(file_name)
         @db = SQLite3::Database.new(file_name)
+        #mapping of tags to ids in database
+        @tags = Hash.new
     end
     
     def create_tables

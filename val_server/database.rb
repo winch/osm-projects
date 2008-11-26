@@ -31,6 +31,19 @@ class Database
         @db.execute('CREATE TABLE IF NOT EXISTS way_tag(way NUMERIC, tag NUMERIC)')
     end
     
+    def create_index
+        #tags
+        @db.execute('CREATE INDEX IF NOT EXISTS tag_index ON tag (id)')
+        
+        #nodes
+        @db.execute('CREATE INDEX IF NOT EXISTS node_index ON node (id)')
+        @db.execute('CREATE INDEX IF NOT EXISTS node_tag_index ON node_tag (node)')
+        
+        #ways
+        @db.execute('CREATE INDEX IF NOT EXISTS way_node_index ON way_node (way)')
+        @db.execute('CREATE INDEX IF NOT EXISTS way_tag_index ON way_tag (way)')
+    end
+    
     def close
         @db.close
     end

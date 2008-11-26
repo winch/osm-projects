@@ -29,6 +29,7 @@ require File.dirname(__FILE__) + '/primative.rb'
 
 db = Database.new(ARGV[1])
 db.create_tables
+db.create_index
 db.close
 
 server = HTTPServer.new(:Port => ARGV[0].to_i)

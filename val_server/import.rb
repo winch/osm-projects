@@ -73,5 +73,6 @@ File.open(ARGV[1]) do |file|
 end
 
 db.db.execute("COMMIT")
+db.create_index
 db.close
 

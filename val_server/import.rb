@@ -20,7 +20,7 @@ require File.dirname(__FILE__) + '/database_way.rb'
 require File.dirname(__FILE__) + '/database_map.rb'
 
 if ARGV.length != 2
-    puts 'inport.rb database.db inport.osm'
+    puts 'inport.rb database.db import.osm'
     exit
 end
 

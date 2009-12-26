@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 $VERSION = '0.1'
-$API_VERSION = '0.5'
+$API_VERSION = '0.6'
 
 if ARGV.length != 2
     puts 'server.rb port database.db'
@@ -16,14 +16,17 @@ include WEBrick
 require File.dirname(__FILE__) + '/query.rb'
 require File.dirname(__FILE__) + '/query_node.rb'
 require File.dirname(__FILE__) + '/query_way.rb'
+require File.dirname(__FILE__) + '/query_changeset.rb'
 require File.dirname(__FILE__) + '/database.rb'
 require File.dirname(__FILE__) + '/database_node.rb'
 require File.dirname(__FILE__) + '/database_way.rb'
 require File.dirname(__FILE__) + '/database_map.rb'
+require File.dirname(__FILE__) + '/database_changeset.rb'
 require File.dirname(__FILE__) + '/servlet_trackpoints.rb'
 require File.dirname(__FILE__) + '/servlet_map.rb'
 require File.dirname(__FILE__) + '/servlet_node.rb'
 require File.dirname(__FILE__) + '/servlet_way.rb'
+require File.dirname(__FILE__) + '/servlet_changeset.rb'
 require File.dirname(__FILE__) + '/servlet_capabilities.rb'
 require File.dirname(__FILE__) + '/xml_listener.rb'
 require File.dirname(__FILE__) + '/primative.rb'
@@ -38,6 +41,7 @@ server.mount('/api/trackpoints', ServletTrackpoints, ARGV[1])
 server.mount('/api/map', ServletMap, ARGV[1])
 server.mount('/api/node', ServletNode, ARGV[1])
 server.mount('/api/way', ServletWay, ARGV[1])
+server.mount('/api/changeset', ServletChangeset, ARGV[1])
 server.mount('/api/capabilities', ServletCapabilities)
 
 trap ("INT") do

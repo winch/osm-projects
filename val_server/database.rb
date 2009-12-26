@@ -22,13 +22,19 @@ class Database
         @db.execute('CREATE TABLE IF NOT EXISTS tag(id INTEGER PRIMARY KEY, k TEXT, v TEXT)')
         
         #nodes
-        @db.execute('CREATE TABLE IF NOT EXISTS node(id INTEGER PRIMARY KEY, lat NUMERIC, lon NUMERIC)')
+        @db.execute('CREATE TABLE IF NOT EXISTS node(id INTEGER PRIMARY KEY, lat NUMERIC, lon NUMERIC, version NUMERIC)')
         @db.execute('CREATE TABLE IF NOT EXISTS node_tag(node NUMERIC, tag NUMERIC)')
         
         #ways
-        @db.execute('CREATE TABLE IF NOT EXISTS way(id INTEGER PRIMARY KEY)')
+        @db.execute('CREATE TABLE IF NOT EXISTS way(id INTEGER PRIMARY KEY, version NUMERIC)')
         @db.execute('CREATE TABLE IF NOT EXISTS way_node(way NUMERIC, node NUMERIC, position NUMERIC)')
         @db.execute('CREATE TABLE IF NOT EXISTS way_tag(way NUMERIC, tag NUMERIC)')
+        
+        #relations
+        
+        #changesets
+        @db.execute('CREATE TABLE IF NOT EXISTS changeset(id INTEGER PRIMARY KEY)')
+        @db.execute('CREATE TABLE IF NOT EXISTS changeset_tag(changeset NUMERIC, tag NUMERIC)')
     end
     
     def create_index
@@ -42,6 +48,11 @@ class Database
         #ways
         @db.execute('CREATE INDEX IF NOT EXISTS way_node_index ON way_node (way)')
         @db.execute('CREATE INDEX IF NOT EXISTS way_tag_index ON way_tag (way)')
+        
+        #relations
+        
+        #changesets
+        @db.execute('CREATE INDEX IF NOT EXISTS changeset_tag_index ON changeset_tag (changeset)')
     end
     
     def close

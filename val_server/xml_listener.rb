@@ -36,7 +36,7 @@ class XMLListener
             @primative.nodes.push(attrs['ref'])
         when 'relation'
             raise 'primative within primative' if @tag.nil? == false
-            raise "Looking for #{@primative_type} but found relation" if @primative_type != 'relation'  && @primative_type.nil? == false
+            raise "Looking for #{@primative_type} but found relation" if @primative_type != 'relation' && @primative_type.nil? == false
             @tag = 'relation'
             @primative =  Relation.new()
             @primative_id = attrs['id']
@@ -48,6 +48,12 @@ class XMLListener
             when 'way'
                 #@importer.import_way_relation(@tag_id, attrs['ref'], attrs['role'])
             end
+        when 'changeset'
+            raise 'primative within primative' if @tag.nil? == false
+            raise "Looking for #{@primative_type} but found changeset" if @primative_type != 'changeset' && @primative_type.nil? == false
+            @tag = 'changeset'
+            @primative = Changeset.new()
+            @primative_id = attrs['id']
         when 'tag'
             raise 'tag without parent' if @tag.nil?
             #add tag to primative

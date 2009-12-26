@@ -11,6 +11,8 @@ class Primative
     attr_accessor :id
     #version
     attr_accessor :version
+    #changeset
+    attr_accessor :changeset
     #array containing tags as key, value pairs.
     attr_accessor :tags
     #if !nil value will be written in action attribute when output as osm xml.
@@ -177,3 +179,27 @@ class Member
         false
     end
 end
+
+#changeset data primative
+
+class Changeset < Primative
+
+    def initialize()
+        super
+    end
+
+    #returns changeset in osm xml
+    def to_xml
+        xml = "  <changeset id=\"#{@id}\">\n"
+        if @tags.empty?
+            #no tags so close node
+            xml << "/>\n"
+        else
+            xml << ">\n"
+            xml << super << "  </changeset>\n"
+        end
+        xml
+    end
+
+end
+

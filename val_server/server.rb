@@ -37,12 +37,12 @@ db.create_index
 db.close
 
 server = HTTPServer.new(:Port => ARGV[0].to_i)
-server.mount('/api/trackpoints', ServletTrackpoints, ARGV[1])
-server.mount('/api/map', ServletMap, ARGV[1])
-server.mount('/api/node', ServletNode, ARGV[1])
-server.mount('/api/way', ServletWay, ARGV[1])
-server.mount('/api/changeset', ServletChangeset, ARGV[1])
-server.mount('/api/capabilities', ServletCapabilities)
+server.mount("/api/#{$API_VERSION}/trackpoints", ServletTrackpoints, ARGV[1])
+server.mount("/api/#{$API_VERSION}/map", ServletMap, ARGV[1])
+server.mount("/api/#{$API_VERSION}/node", ServletNode, ARGV[1])
+server.mount("/api/#{$API_VERSION}/way", ServletWay, ARGV[1])
+server.mount("/api/#{$API_VERSION}/changeset", ServletChangeset, ARGV[1])
+server.mount("/api/capabilities", ServletCapabilities)
 
 trap ("INT") do
     server.shutdown

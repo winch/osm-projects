@@ -4,9 +4,10 @@ module QueryNode
     #find node
     def find_node(id)
         primative = nil
-        @db.execute('SELECT lat, lon FROM node WHERE id = ?', id) do |node|
+        @db.execute('SELECT lat, lon, version FROM node WHERE id = ?', id) do |node|
             primative = Node.new(node[0], node[1])
             primative.id = id
+            primative.version = node[2]
             find_node_tag(primative.id) do |tag|
                 primative.tags.push(tag)
             end

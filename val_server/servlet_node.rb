@@ -11,10 +11,10 @@ class ServletNode < HTTPServlet::AbstractServlet
     def do_GET(req, res)
          #get id and action
         query = req.path.split('/')
-        id = query[3]
+        id = query[4]
         action = nil
-        if query.length > 4
-            action = query[4]
+        if query.length > 5
+            action = query[5]
         end
         
         if action.nil? or action == 'history'

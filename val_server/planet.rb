@@ -4,7 +4,7 @@
 # $Id$
 
 $VERSION = '0.1'
-$API_VERSION = '0.5'
+$API_VERSION = '0.6'
 
 require 'sqlite3'
 
@@ -20,8 +20,8 @@ File.open(ARGV[1], 'w') do |file|
     file.puts("<osm version='#{$API_VERSION}' generator='planet v#{$VERSION}'>")
     
     #nodes
-    db.execute('SELECT id, lat, lon FROM node') do |node|
-        file.write("  <node id='#{node[0]}' lat='#{node[1]}' lon='#{node[2]}'")
+    db.execute('SELECT id, lat, lon, version FROM node') do |node|
+        file.write("  <node id='#{node[0]}' lat='#{node[1]}' lon='#{node[2]}' version='#{node[3]}'")
         tags = ''
         db.execute('SELECT tag.k, tag.v FROM node_tag INNER JOIN tag ON node_tag.tag = tag.id WHERE node_tag.node = ?', node[0]) do |tag|
             tags << "    <tag k='#{tag[0]}' v='#{tag[1]}'/>\n"
@@ -37,8 +37,8 @@ File.open(ARGV[1], 'w') do |file|
     end
     
     #ways
-    db.execute('SELECT id FROM WAY') do |way|
-        file.puts("  <way id='#{way[0]}'>")
+    db.execute('SELECT id, version FROM WAY') do |way|
+        file.puts("  <way id='#{way[0]}' version='#{way[1]}'>")
         
         #nodes
         db.execute('SELECT node FROM way_node WHERE way = ? ORDER BY position', way[0]) do |way_node|

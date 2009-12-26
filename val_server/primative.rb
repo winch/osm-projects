@@ -22,7 +22,6 @@ class Primative
     def initialize
         @tags = Array.new
         @action = nil
-        @version = 1
     end
 
     #The same tags in a different order are considered equal.

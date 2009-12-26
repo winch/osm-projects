@@ -15,6 +15,11 @@ module QueryChangeset
         changeset
     end
 
+    #close changeset
+    def close_changeset(changeset)
+        @db.execute('UPDATE changeset SET status = "closed" WHERE id = ?', changeset)
+    end
+
     # instert a tag to the changeset_tag table
     def insert_changeset_tag(changeset, tag)
         @db.execute('INSERT INTO changeset_tag (changeset, tag) VALUES(?, ?)', changeset, insert_tag(tag))

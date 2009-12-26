@@ -48,6 +48,7 @@ class ServletChangeset < HTTPServlet::AbstractServlet
             res.body = changeset.id.to_s
         elsif action == "close"
             #close changset and return nothing
+            @db.close_changeset(req.path.split('/')[-2])
         else
             #modify changset tags and return new changeset
             res['Content-Type'] = 'text/xml'

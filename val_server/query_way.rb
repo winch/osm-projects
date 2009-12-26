@@ -14,6 +14,12 @@ module QueryWay
             end
             primative.nodes.push(node[0])
         end
+        #get version
+        if primative.nil? == false
+            @db.execute('SELECT version FROM way WHERE id = ?', id) do |version|
+                primative.version = version[0]
+            end
+        end
         return primative
     end
 

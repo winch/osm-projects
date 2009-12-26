@@ -4,7 +4,7 @@
 # $Id$
 
 $VERSION = '0.1'
-$API_VERSION = '0.5'
+$API_VERSION = '0.6'
 
 require 'sqlite3'
 require 'rexml/document'

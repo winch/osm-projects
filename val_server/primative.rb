@@ -9,6 +9,8 @@ require 'cgi'
 class Primative
     #id
     attr_accessor :id
+    #version
+    attr_accessor :version
     #array containing tags as key, value pairs.
     attr_accessor :tags
     #if !nil value will be written in action attribute when output as osm xml.
@@ -18,6 +20,7 @@ class Primative
     def initialize
         @tags = Array.new
         @action = nil
+        @version = 1
     end
 
     #The same tags in a different order are considered equal.
@@ -80,7 +83,7 @@ class Node < Primative
         if !@action.nil?
             action = " action=\"#{@action}\" "
         end
-        xml = "  <node id=\"#{@id}\"#{action}lat=\"#{@lat}\" lon=\"#{@lon}\""
+        xml = "  <node id=\"#{@id}\"#{action}lat=\"#{@lat}\" lon=\"#{@lon}\" version=\"#{@version}\""
         if @tags.empty?
             #no tags so close node
             xml << "/>\n"
@@ -114,9 +117,9 @@ class Way < Primative
     def to_xml
         action = ''
         if !@action.nil?
-            action = " action=\"#{@action}\""
+            action = "action=\"#{@action}\" "
         end
-        xml = "  <way id=\"#{id}\"#{action}>\n"
+        xml = "  <way id=\"#{@id}\" #{action}version=\"#{@version}\">\n"
         @nodes.each do |node|
             xml << "    <nd ref=\"#{node}\"/>\n"
         end

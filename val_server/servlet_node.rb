@@ -9,7 +9,22 @@ class ServletNode < HTTPServlet::AbstractServlet
     end
     
     def do_GET(req, res)
-        #
+         #get id and action
+        query = req.path.split('/')
+        id = query[3]
+        action = nil
+        if query.length > 4
+            action = query[4]
+        end
+        
+        if action.nil? or action == 'history'
+            #output node details
+            node = @db.find_node(id)
+            res.body << "<?xml version='1.0' encoding='UTF-8'?>\n"
+            res.body << "<osm version='#{$API_VERSION}' generator='server.rb #{$VERSION}'>\n"
+            res.body << node.to_xml
+            res.body << "</osm>\n"
+        end
     end
     
     def do_PUT(req, res)

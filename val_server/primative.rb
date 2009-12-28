@@ -190,7 +190,12 @@ class Changeset < Primative
 
     #returns changeset in osm xml
     def to_xml
-        xml = "  <changeset id=\"#{@id}\""
+        if @status == "closed"
+            open = "false"
+        else
+            open = "true"
+        end
+        xml = "  <changeset id=\"#{@id}\" open=\"#{open}\""
         if @tags.empty?
             #no tags so close node
             xml << "/>\n"

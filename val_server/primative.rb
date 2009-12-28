@@ -182,6 +182,7 @@ end
 #changeset data primative
 
 class Changeset < Primative
+    attr_accessor :status
 
     def initialize()
         super
@@ -189,7 +190,7 @@ class Changeset < Primative
 
     #returns changeset in osm xml
     def to_xml
-        xml = "  <changeset id=\"#{@id}\">\n"
+        xml = "  <changeset id=\"#{@id}\""
         if @tags.empty?
             #no tags so close node
             xml << "/>\n"

@@ -9,6 +9,7 @@ class ServletWay < HTTPServlet::AbstractServlet
     end
     
     def do_GET(req, res)
+        res['Content-Type'] = 'text/xml'
         #get id and action
         query = req.path.split('/')
         id = query[4]
@@ -20,10 +21,14 @@ class ServletWay < HTTPServlet::AbstractServlet
         if action.nil? or action == 'history'
             #output way details
             way = @db.find_way(id)
-            res.body << "<?xml version='1.0' encoding='UTF-8'?>\n"
-            res.body << "<osm version='#{$API_VERSION}' generator='server.rb #{$VERSION}'>\n"
-            res.body << way.to_xml
-            res.body << "</osm>\n"
+            if way.nil?
+                raise HTTPStatus::NotFound
+            else
+                res.body << "<?xml version='1.0' encoding='UTF-8'?>\n"
+                res.body << "<osm version='#{$API_VERSION}' generator='server.rb #{$VERSION}'>\n"
+                res.body << way.to_xml
+                res.body << "</osm>\n"
+            end
         end
     end
     

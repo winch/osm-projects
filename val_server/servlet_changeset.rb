@@ -10,19 +10,35 @@ class ServletChangeset < HTTPServlet::AbstractServlet
     
     def do_GET(req, res)
         #get id and action
+        res['Content-Type'] = 'text/xml'
         query = req.path.split('/')
-        id = query[3]
+        id = query[4]
         action = nil
         if query.length > 4
-            action = query[4]
+            action = query[5]
         end
         
-        if action.nil?
+        if action.nil? or action == 'history'
             #output changeset details
-            res.body << "hello"
+            changeset = @db.find_changset(id)
+            if changeset.nil?
+                raise HTTPStatus::NotFound
+            else
+                res.body << "<?xml version='1.0' encoding='UTF-8'?>\n"
+                res.body << "<osm version='#{$API_VERSION}' generator='server.rb #{$VERSION}'>\n"
+                res.body << changeset.to_xml
+                res.body << "</osm>\n"
+            end
         end
     end
-    
+
+    def do_POST(req, res)
+        #parse osm change data
+        #return response xml
+        res['Content-Type'] = 'text/xml'
+    end
+
+
     def do_PUT(req, res)
         
         #is the changset being created, closed or modified
